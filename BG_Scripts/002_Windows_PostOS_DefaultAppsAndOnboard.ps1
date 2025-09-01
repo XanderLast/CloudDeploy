@@ -3,7 +3,7 @@ Write-Host -ForegroundColor Cyan "             Default Apps and Onboard Client -
 Write-Host -ForegroundColor Cyan "========================================================================================="
 Write-Host -ForegroundColor Cyan ""
 Write-Host -ForegroundColor Gray "========================================================================================="
-Start-Transcript -Path "C:\ezNetworking\Automation\Logs\ezCloudDeploy_111_Windows_PostOS_DefaultAppsAndOnboard.log"
+Start-Transcript -Path "C:\VTAutomate\Automation\Logs\CloudDeploy_111_Windows_PostOS_DefaultAppsAndOnboard.log"
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host -ForegroundColor Gray "Z> Setting up Powershell and Repo trusted."
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
@@ -15,16 +15,16 @@ Write-Host -ForegroundColor Gray "Z> Installing Burned Toast Module."
 Install-Module burnttoast
 Import-Module burnttoast
 Write-Host -ForegroundColor Gray "========================================================================================="
-write-host "Z> reading the ezClientConfig.json file"
-$ezClientConfig = Get-Content -Path "C:\ezNetworking\Automation\ezCloudDeploy\ezClientConfig.json" | ConvertFrom-Json
+write-host "Z> reading the ClientConfig.json file"
+$ClientConfig = Get-Content -Path "C:\VTAutomate\Automation\CloudDeploy\ClientConfig.json" | ConvertFrom-Json
 
 # Checking if the folders exist, if not create them
 $foldersToCheck = @(
-    "C:\ezNetworking\Automation\Logs",
-    "C:\ezNetworking\Automation\Scripts",
-    "C:\ezNetworking\Apps",
-    "C:\ezNetworking\ezRMM",
-    "C:\ezNetworking\ezRS"
+    "C:\VTAutomate\Automation\Logs",
+    "C:\VTAutomate\Automation\Scripts",
+    "C:\VTAutomate\Apps",
+    "C:\VTAutomate\RMM",
+    "C:\VTAutomate\RS"
 )
 
 foreach ($folder in $foldersToCheck) {
@@ -39,7 +39,7 @@ foreach ($folder in $foldersToCheck) {
 
 # Set Do Not Disturb to Off (Dirty Way, not found a better one :) :)
 
-if ($ezClientConfig.TaskSeqType -eq "AzureAD") {
+if ($ClientConfig.TaskSeqType -eq "AzureAD") {
     write-host "Z> AzureAD Task Sequence, skipping Focus Assist"
 }  
 else {
@@ -71,16 +71,16 @@ New-BurntToastNotification @splat
 Write-Host -ForegroundColor Cyan "========================================================================================="
 write-host -ForegroundColor Cyan "Z> User configuration"
 Write-Host -ForegroundColor Cyan "========================================================================================="
-Write-Host -ForegroundColor Gray "Z> Setting ezadminlocal's password to never expire "
-if (Get-LocalUser -Name "ezAdminLocal" -ErrorAction SilentlyContinue) {
-    Set-LocalUser -Name "ezAdminLocal" -PasswordNeverExpires $true
-    Write-Host -ForegroundColor Gray "Z> ezAdminLocal user found and password set to never expire."
+Write-Host -ForegroundColor Gray "Z> Setting vtadminlocal's password to never expire "
+if (Get-LocalUser -Name "vtAdminLocal" -ErrorAction SilentlyContinue) {
+    Set-LocalUser -Name "vtAdminLocal" -PasswordNeverExpires $true
+    Write-Host -ForegroundColor Gray "Z> vtAdminLocal user found and password set to never expire."
 } else {
-    Write-Host -ForegroundColor Yellow "Z> No ezAdminLocal user found, probably an AzureAD install."
+    Write-Host -ForegroundColor Yellow "Z> No vtAdminLocal user found, probably an AzureAD install."
 }
 
 Write-Host -ForegroundColor Cyan "========================================================================================="
-write-host -ForegroundColor Cyan "Z> Installing apps and onboarding client to ezRmm"
+write-host -ForegroundColor Cyan "Z> Installing apps and onboarding client to Rmm"
 Write-Host -ForegroundColor Cyan "========================================================================================="
 
 # Install Choco and minimal default packages
@@ -102,87 +102,35 @@ choco install dotnet-8.0-desktopruntime -y
 Write-Host -ForegroundColor Gray "========================================================================================="
 
 
-# Install ezRmm and ezRS
-write-host -ForegroundColor White "Z> ezRMM - Downloading and installing it for customer $($ezClientConfig.ezRmmId)"
+# Install Rmm
+write-host -ForegroundColor White "Z> RMM - Downloading and installing it for customer $($ClientConfig.RmmId)"
 
 $Splat = @{
-    Text = 'Z> Installing ez RMM' , "Downloading and installing... Started $Time"
+    Text = 'Z> Installing RMM' , "Downloading and installing... Started $Time"
     Applogo = 'https://iili.io/H8B8JtI.png'
     Sound = 'IM'
 }
 New-BurntToastNotification @splat 
 
 try {
-    $ezRmmUrl = "http://support.ez.be/GetAgent/Windows/?cid=$($ezClientConfig.ezRmmId)" + '&aid=0013z00002YbbGCAAZ'
-    Write-Host -ForegroundColor Gray "Z> Downloading ezRmmInstaller.msi from $ezRmmUrl"
-    Invoke-WebRequest -Uri $ezRmmUrl -OutFile "C:\ezNetworking\ezRMM\ezRmmInstaller.msi"
-    Start-Process -FilePath "C:\ezNetworking\ezRMM\ezRmmInstaller.msi" -ArgumentList "/quiet" -Wait
+    $RmmUrl = "http://support.ez.be/GetAgent/Windows/?cid=$($ClientConfig.RmmId)" + '&aid=0013z00002YbbGCAAZ'
+    Write-Host -ForegroundColor Gray "Z> Downloading RmmInstaller.msi from $RmmUrl"
+    Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VTAutomate\RMM\RmmInstaller.msi"
+    Start-Process -FilePath "C:\VTAutomate\RMM\RmmInstaller.msi" -ArgumentList "/quiet" -Wait
     
 }
 catch {
-    Write-Error "Z> ezRmm is already installed or had an error $($_.Exception.Message)"
+    Write-Error "Z> Rmm is already installed or had an error $($_.Exception.Message)"
 }
 
-<#
- # {
-Write-Host -ForegroundColor Gray "========================================================================================="
-write-host -ForegroundColor White "Z> ezRS - Downloading and installing it. "
-try {
-$ConfigId = 'q6epc32'
-$Version = 'v15'
-[System.Net.ServicePointManager]::SecurityProtocol = 'Tls12'
-$UrlDownload = "https://customdesignservice.teamviewer.com/download/windows/$Version/$ConfigId/TeamViewer_Host_Setup.exe"
-$FileDownload = "C:\ezNetworking\ezRS\ezRsInstaller.exe"
-( New-Object System.Net.WebClient ).DownloadFile( $UrlDownload , $FileDownload )
-}
-catch {
-    Write-Error "Z> ezRS failed to download: $($_.Exception.Message)"
-}
-
-
-Write-Host -ForegroundColor Gray "========================================================================================="
-# Download the Office uninstall script from github
-Write-Host -ForegroundColor White "Z> Office uninstall."
-try {
-    $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ezNetworking/ezCloudDeploy/master/non_ezCloudDeployGuiScripts/114_Windows_PostOS_UninstallOffice.ps1" -UseBasicParsing 
-    $DefaultAppsAndOnboardScript = $DefaultAppsAndOnboardResponse.content
-    Write-Host -ForegroundColor Gray "Z> Saving the script to c:\ezNetworking\Automation\ezCloudDeploy\Scripts\"
-    $DefaultAppsAndOnboardScriptPath = "c:\ezNetworking\Automation\ezCloudDeploy\Scripts\UninstallOffice365.ps1"
-    $DefaultAppsAndOnboardScript | Out-File -FilePath $DefaultAppsAndOnboardScriptPath -Encoding UTF8
-}
-catch {
-    Write-Error " Z> I was unable to download the Office Uninstall script."
-}
-
-$scriptPath = "c:\ezNetworking\Automation\ezCloudDeploy\Scripts\UninstallOffice365.ps1"
-# Running the Office uninstall script
-Write-Host -ForegroundColor Gray "Z> Running the Office uninstall script."
-
-$process = Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -PassThru
-
-# Wait for the process to complete
-$process.WaitForExit()
-
-# Check the exit code of the process
-$exitCode = $process.ExitCode
-
-if ($exitCode -eq 0) {
-    # Process completed successfully
-    Write-Host -ForegroundColor gray "Z> Office Uninstall Script execution finished."
-} else {
-    # Process encountered an error
-    Write-Error "Z> Office Uninstall Script execution failed with exit code: $exitCode"
-}
-:Enter a comment or description}
-#>
 
 # Download the Office Install script from github
 Write-Host -ForegroundColor White "Z> Office 365 Install."
 try {
-    $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ezNetworking/ezCloudDeploy/master/non_ezCloudDeployGuiScripts/115_Windows_PostOS_InstallOffice.ps1" -UseBasicParsing 
+    $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/001_Windows_PostOS_InstallOffice.ps1" -UseBasicParsing 
     $DefaultAppsAndOnboardScript = $DefaultAppsAndOnboardResponse.content
-    Write-Host -ForegroundColor Gray "Z> Saving the script to c:\ezNetworking\Automation\ezCloudDeploy\Scripts\"
-    $DefaultAppsAndOnboardScriptPath = "c:\ezNetworking\Automation\ezCloudDeploy\Scripts\InstallOffice365.ps1"
+    Write-Host -ForegroundColor Gray "Z> Saving the script to c:\VTAutomate\Automation\CloudDeploy\Scripts\"
+    $DefaultAppsAndOnboardScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\InstallOffice365.ps1"
     $DefaultAppsAndOnboardScript | Out-File -FilePath $DefaultAppsAndOnboardScriptPath -Encoding UTF8
 }
 catch {
@@ -190,7 +138,7 @@ catch {
 }
 
 # Running the Office Install script
-$scriptPath = "c:\ezNetworking\Automation\ezCloudDeploy\Scripts\InstallOffice365.ps1"
+$scriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\InstallOffice365.ps1"
 
 Write-Host -ForegroundColor Gray "Z> Running the Office Install script."
 
@@ -344,7 +292,7 @@ function Invoke-PostOOBEAppRemoval {
 
 Write-Host ""
 Write-Host -ForegroundColor Cyan "========================================================================================="
-write-host -ForegroundColor Cyan "Z> Synching ez Client Folders"
+write-host -ForegroundColor Cyan "Z> Synching Client Folders"
 Write-Host -ForegroundColor Cyan "========================================================================================="
 
 # Define function to handle SFTP file download
@@ -429,7 +377,7 @@ try {
 Write-Host "Z> 1.4.1 Posh-SSH module is already installed."
 
 # 2. Define file and directory locations
-$localDirectory = "C:\ezNetworking\"
+$localDirectory = "C:\VTAutomate\"
 $ftpRemoteDirectory = "/SupportFolderClients"
 
 
@@ -465,45 +413,10 @@ try {
 }
 
 
-Write-Host ""
-Write-Host -ForegroundColor Cyan "========================================================================================="
-write-host -ForegroundColor Cyan "Z> Installing ez Support Companion"
-Write-Host -ForegroundColor Cyan "========================================================================================="
-$installerPath = "C:\ezNetworking\ez Support Companion\ez Support Companion Setup.msi"
-
-# 2.4 Check if the file was downloaded successfully
-if (!(Test-Path $installerPath)) {
-    Write-Host "Z> 2.4 Error: Installer file still not found after FTP download. skipping install."
-} else {
-    Write-Host "Z> 2.4 Installer file downloaded successfully. Proceeding with installation."
-}
-
-
-# 2.5 Proceed with the installation of the .msi file
-Write-Host "Z> 2.5 Starting installation of ez Support Companion using the MSI installer..."
-try {
-    $installResult = Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$installerPath`" /qn" -Wait -PassThru
-    
-    if ($installResult.ExitCode -eq 0) {
-        Write-Host "Z> 2.5.1 MSI Installation completed successfully."
-    } else {
-        Write-Host "Z> 2.5.1 MSI Installation failed with exit code $($installResult.ExitCode). Please check logs for details."
-        Stop-Transcript
-        return
-    }
-} catch {
-    Write-Host "Z> 2.5.2 Error during installation. Exception: $($_.Exception.Message)"
-    Stop-Transcript
-    return
-}
-
-Write-Host "Z> 2.6 ez Support Companion MSI client installed and configured successfully."
-
-
 
 $Time = Get-date -Format t
 $Splat = @{
-    Text = 'Z> Default apps script finished' , "Installed Choco, ezRMM, Office 365, ez Support Companion Finished $Time"
+    Text = 'Z> Default apps script finished' , "Installed Choco, RMM, Office 365 $Time"
     Applogo = 'https://iili.io/H8B8JtI.png'
     Sound = 'IM'
 }

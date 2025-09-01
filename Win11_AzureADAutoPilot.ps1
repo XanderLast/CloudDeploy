@@ -11,7 +11,7 @@ Write-Host -ForegroundColor Cyan ""
 # Ask user for the computer name and ezRmmId
 Write-Host -ForegroundColor Yellow "Fill in the computer name and RMM Customer ID"
 $computerName = Read-Host "  Enter the computer name"
-$ezRmmId = Read-Host "  Enter the RMM Customer ID"
+$RmmId = Read-Host "  Enter the RMM Customer ID"
 Write-Host -ForegroundColor Cyan ""
 
 #region OS Install
@@ -74,14 +74,14 @@ foreach ($folder in $folders) {
     }
 }
 
-# Create a json config file with the ezRmmId
+# Create a json config file with the RmmId
 Write-Host -ForegroundColor Gray "========================================================================================="
-Write-Host -ForegroundColor White "Z> Creating a json config file with the ezRmmId"
-$ezClientConfig = @{
+Write-Host -ForegroundColor White "Z> Creating a json config file with the RmmId"
+$ClientConfig = @{
     TaskSeqType = "AzureAD"
-    ezRmmId = $ezRmmId
+    RmmId = $RmmId
 }
-$ezClientConfig | ConvertTo-Json | Out-File -FilePath "C:\VTAutomate\Automation\CloudDeploy\ezClientConfig.json" -Encoding UTF8
+$ClientConfig | ConvertTo-Json | Out-File -FilePath "C:\VTAutomate\Automation\CloudDeploy\ClientConfig.json" -Encoding UTF8
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host ""
 
@@ -89,7 +89,7 @@ Write-Host ""
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host -ForegroundColor White "Z> Downloading the DefaultAppsAndOnboardScript.ps1 script from CloudDeploy."
 try {
-    $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/Windows_PostOS_DefaultAppsAndOnboard.ps1" -UseBasicParsing 
+    $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/Windows_PostOS_DefaultAppsAndOnboard.ps1" -UseBasicParsing 
     $DefaultAppsAndOnboardScript = $DefaultAppsAndOnboardResponse.content
     Write-Host -ForegroundColor Gray  "Z> Saving the Onboard script to c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
     $DefaultAppsAndOnboardScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
@@ -116,7 +116,7 @@ $OobeXml = @"
 <FirstExperience>
     <oobe>
         <oem>
-            <name>ez Networking</name>
+            <name>Van Tornhout</name>
             <computername>$Computername</computername>
         </oem>
         <defaults>
@@ -168,15 +168,15 @@ start "Install-Module OSD" /wait PowerShell -NoL -C Install-Module OSD -Force -V
 start "Install-Module AutopilotOOBE" /wait PowerShell -NoL -C Install-Module AutopilotOOBE -Force -Verbose
 
 :: Start-AutopilotOOBE
-start "Start-AutopilotOOBE" /wait PowerShell -NoL -C Start-AutopilotOOBE -Title 'ez Cloud Deploy Autopilot Reg' -GroupTag Win-Autopilot01 -Assign -AssignedComputerName "{0}"
+start "Start-AutopilotOOBE" /wait PowerShell -NoL -C Start-AutopilotOOBE -Title 'Cloud Deploy Autopilot Reg' -GroupTag Win-Autopilot01 -Assign -AssignedComputerName "{0}"
 
-:: Start ez Onboarding
-start "ez Onboarding" PowerShell -NoL -C "c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
+:: Start Onboarding
+start "Default apps & Onboarding" PowerShell -NoL -C "c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
 
 exit
 '@ -f $computername
 $SetCommand
-$SetCommand | Out-File -FilePath "C:\Windows\system32\ezOOBE.cmd" -Encoding ascii -Force
+$SetCommand | Out-File -FilePath "C:\Windows\system32\AutomateOOBE.cmd" -Encoding ascii -Force #checkthis
 Write-Host -ForegroundColor Gray "========================================================================================="
 
 #And stop the transcript.
@@ -246,4 +246,5 @@ Then sets up OOBE ezOnboard.cmd which you can launch doing Shift + F10 at the OO
 .NOTES
 Author: Jurgen Verhelst | ez Networking | www.ez.be
 Modules Used: @Segura: OSD, AutopilotOOBE @WindosNZ: BurntToast
+Edited to VT by Xander Last | Van Tornhout IT & Telecom | www.vt.be
 #>
