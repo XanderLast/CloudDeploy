@@ -9,9 +9,9 @@ Write-Host -ForegroundColor Cyan "==============================================
 Write-Host -ForegroundColor Cyan ""
 
 # Ask user for the computer name and ezRmmId
-Write-Host -ForegroundColor Yellow "  Zed Needs to know the Computer name and ez RMM Customer ID."
+Write-Host -ForegroundColor Yellow "Fill in the computer name and RMM Customer ID"
 $computerName = Read-Host "  Enter the computer name"
-$ezRmmId = Read-Host "  Enter the ez RMM Customer ID"
+$ezRmmId = Read-Host "  Enter the RMM Customer ID"
 Write-Host -ForegroundColor Cyan ""
 
 #region OS Install
@@ -46,7 +46,7 @@ Start-OSDCloud @Params
 
 Write-Host -ForegroundColor Gray "========================================================================================="
 # Start transcript
-$transcriptPath = "c:\ezNetworking\Automation\Logs\ezCloudDeploy_TaskSequence_AzureAD.log"
+$transcriptPath = "c:\VTAutomate\Automation\Logs\CloudDeploy_TaskSequence_AzureAD.log"
 Start-Transcript -Path $transcriptPath
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host ""
@@ -60,7 +60,7 @@ Write-Host -ForegroundColor Cyan ""
 
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host -ForegroundColor White "Z> Let's check if the folders exist, if not create them"
-$folders = "c:\Windows\System32\Oobe\Info", "c:\windows\System32\Oobe\Info\Default", "c:\ezNetworking\Automation\ezCloudDeploy\AutoUnattend", "c:\ezNetworking\Automation\Logs", "c:\ezNetworking\Automation\ezCloudDeploy\Scripts", "C:\ProgramData\OSDeploy"
+$folders = "c:\Windows\System32\Oobe\Info", "c:\windows\System32\Oobe\Info\Default", "c:\VTAutomate\Automation\CloudDeploy\AutoUnattend", "c:\VTAutomate\Automation\Logs", "c:\VTAutomate\Automation\CloudDeploy\Scripts", "C:\ProgramData\OSDeploy"
 foreach ($folder in $folders) {
     if (!(Test-Path $folder)) {
         try {
@@ -81,18 +81,18 @@ $ezClientConfig = @{
     TaskSeqType = "AzureAD"
     ezRmmId = $ezRmmId
 }
-$ezClientConfig | ConvertTo-Json | Out-File -FilePath "C:\ezNetworking\Automation\ezCloudDeploy\ezClientConfig.json" -Encoding UTF8
+$ezClientConfig | ConvertTo-Json | Out-File -FilePath "C:\VTAutomate\Automation\CloudDeploy\ezClientConfig.json" -Encoding UTF8
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host ""
 
 # Download the DefaultAppsAndOnboard.ps1 script from github
 Write-Host -ForegroundColor Gray "========================================================================================="
-Write-Host -ForegroundColor White "Z> Downloading the DefaultAppsAndOnboardScript.ps1 script from ezCloudDeploy."
+Write-Host -ForegroundColor White "Z> Downloading the DefaultAppsAndOnboardScript.ps1 script from CloudDeploy."
 try {
     $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/Windows_PostOS_DefaultAppsAndOnboard.ps1" -UseBasicParsing 
     $DefaultAppsAndOnboardScript = $DefaultAppsAndOnboardResponse.content
-    Write-Host -ForegroundColor Gray  "Z> Saving the Onboard script to c:\ezNetworking\Automation\ezCloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
-    $DefaultAppsAndOnboardScriptPath = "c:\ezNetworking\Automation\ezCloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
+    Write-Host -ForegroundColor Gray  "Z> Saving the Onboard script to c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
+    $DefaultAppsAndOnboardScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
     $DefaultAppsAndOnboardScript | Out-File -FilePath $DefaultAppsAndOnboardScriptPath -Encoding UTF8
 }
 catch {
@@ -144,7 +144,7 @@ catch {
 }
 
 Write-Host -ForegroundColor Gray "========================================================================================="
-Write-Host -ForegroundColor White "Z> Creating shortcuts to the ezCloudDeploy OOBE and AutoPilot scripts"
+Write-Host -ForegroundColor White "Z> Creating shortcuts to the CloudDeploy OOBE and AutoPilot scripts"
 $SetCommand = @'
 @echo off
 
@@ -171,7 +171,7 @@ start "Install-Module AutopilotOOBE" /wait PowerShell -NoL -C Install-Module Aut
 start "Start-AutopilotOOBE" /wait PowerShell -NoL -C Start-AutopilotOOBE -Title 'ez Cloud Deploy Autopilot Reg' -GroupTag Win-Autopilot01 -Assign -AssignedComputerName "{0}"
 
 :: Start ez Onboarding
-start "ez Onboarding" PowerShell -NoL -C "c:\ezNetworking\Automation\ezCloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
+start "ez Onboarding" PowerShell -NoL -C "c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
 
 exit
 '@ -f $computername
@@ -186,15 +186,15 @@ Write-Host ""
 #endregion
 
 Write-Host -ForegroundColor Cyan "========================================================================================="
-Write-Host -ForegroundColor Cyan "                                Zed's finished!"
+Write-Host -ForegroundColor Cyan "                                Script finished!"
 Write-Host -ForegroundColor Cyan "========================================================================================="
 Write-Host -ForegroundColor Cyan ""
 
 Write-Warning "  ========================================================================================="
-Write-Warning "  I'm done mate! If you don't see any errors above you can reboot the pc and wait for OOBE."
+Write-Warning "  If you don't see any errors above you can reboot the pc and wait for OOBE."
 Write-Warning "  Click OK for Country and KBD. Then press Shift + F10 to open a command prompt and type:"
-Write-Warning "                           ezOOBE.cmd "
-Write-Warning "  Default apps install, onboard ez RMM, remove MS apps, updates and start the Autopilot GUI."
+Write-Warning "                           AutomateOOBE.cmd "
+Write-Warning "  Default apps install, onboard RMM, remove MS apps, updates and start the Autopilot GUI."
 Write-Warning "  ========================================================================================="
 Write-Host " "
 Write-Warning "  If you do see errors, please check the log file at $transcriptPath."
