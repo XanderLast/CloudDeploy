@@ -459,7 +459,7 @@ Write-Host -ForegroundColor Cyan "==============================================
 Installs Chocolatey and minimal default packages and onboards the computer to ezRmm.
 
 .DESCRIPTION
-This script installs Chocolatey and minimal default packages. It reads the ezClientConfig.json and onboards the computer to ezRmm.
+This script installs Chocolatey and minimal default packages. It reads the ClientConfig.json and onboards the computer to ezRmm.
 It also removes Windows Consumer Apps and updates Windows.
 .NOTES
 Author: Jurgen Verhelst | ez Networking | www.ez.be
