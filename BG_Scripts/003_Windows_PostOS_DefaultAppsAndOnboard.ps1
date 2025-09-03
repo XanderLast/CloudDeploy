@@ -3,7 +3,7 @@ Write-Host -ForegroundColor Cyan "             Default Apps and Onboard Client -
 Write-Host -ForegroundColor Cyan "========================================================================================="
 Write-Host -ForegroundColor Cyan ""
 Write-Host -ForegroundColor Gray "========================================================================================="
-Start-Transcript -Path "C:\VTAutomate\Automation\Logs\CloudDeploy_111_Windows_PostOS_DefaultAppsAndOnboard.log"
+Start-Transcript -Path "C:\VTAutomate\Automation\Logs\CloudDeploy_003_Windows_PostOS_DefaultAppsAndOnboard.log"
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host -ForegroundColor Gray "Z> Setting up Powershell and Repo trusted."
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
@@ -179,7 +179,7 @@ if ($exitCode -eq 0) {
 # Download the Office Install script from github
 Write-Host -ForegroundColor White "Z> Office 365 Install."
 try {
-    $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/005_Windows_PostOS_InstallOffice.ps1" -UseBasicParsing 
+    $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/001_Windows_PostOS_InstallOffice.ps1" -UseBasicParsing 
     $DefaultAppsAndOnboardScript = $DefaultAppsAndOnboardResponse.content
     Write-Host -ForegroundColor Gray "Z> Saving the script to c:\VTAutomate\Automation\CloudDeploy\Scripts\"
     $DefaultAppsAndOnboardScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\InstallOffice365.ps1"

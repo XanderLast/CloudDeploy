@@ -3,7 +3,7 @@ Write-Host -ForegroundColor Cyan "             Default Apps and Onboard Client -
 Write-Host -ForegroundColor Cyan "========================================================================================="
 Write-Host -ForegroundColor Cyan ""
 Write-Host -ForegroundColor Gray "========================================================================================="
-Start-Transcript -Path "C:\VTAutomate\Automation\Logs\CloudDeploy_111_Windows_PostOS_DefaultAppsAndOnboard.log"
+Start-Transcript -Path "C:\VTAutomate\Automation\Logs\CloudDeploy_002_Windows_PostOS_DefaultAppsAndOnboard.log"
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host -ForegroundColor Gray "Z> Setting up Powershell and Repo trusted."
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force

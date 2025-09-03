@@ -163,7 +163,7 @@ $unattendXml = @"
 </unattend>
 "@
 
-# Write the updated unattend.xml file to c:\ezNetworking\Automation\ezCloudDeploy\AutoUnattend\
+# Write the updated unattend.xml file to c:\VTAutomate\Automation\CloudDeploy\AutoUnattend\
 Write-Host -ForegroundColor White "Z>Writing the unattend.xml file to c:\VTAutomate\Automation\CloudDeploy\AutoUnattend\"
 write-host -ForegroundColor Gray "$unattendXml"
 $unattendPath = "C:\VTAutomate\Automation\CloudDeploy\AutoUnattend\LocalAdUnattend.xml"
@@ -222,14 +222,15 @@ Write-Host ""
 
 
 Write-Host -ForegroundColor White "========================================================================================="
-Write-Host -ForegroundColor White "                                Zed's finished!"
+Write-Host -ForegroundColor White "                                Script finished!"
 Write-Host -ForegroundColor White "========================================================================================="
 Write-Host -ForegroundColor White ""
 
 Write-Warning "  ========================================================================================="
-Write-Warning "  I'm done mate! If you don't see any errors above you can reboot the pc and change the"
-Write-Warning "  Admin Password. Once logged in a Domain Join Gui will be displayed and in the background"
-Write-Warning "  the default apps will be installed, so make sure the network cable is plugged in.  "
+Write-Warning "     The process is now complete."
+Write-Warning "     You can restart the PC and change the administrator password."
+Write-Warning "     A Domain Join GUI will appear on the next login. The default apps will install in the background."
+Write-Warning "     Please ensure the network cable is connected."
 Write-Warning "  ========================================================================================="
 Write-Host " "
 Write-Warning "  If you do see errors, please check the log file at "
