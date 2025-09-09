@@ -15,6 +15,7 @@ Array with apps you do NOT want to install
 
 .NOTES
 Author: Jurgen Verhelst | ez Networking (jurgen.verhelst@ez.be) 
+Edited by : Xander Last | Van Tornhout IT | vt.be 
 Version: 0.7
 Last Updated: 19/2/23
 

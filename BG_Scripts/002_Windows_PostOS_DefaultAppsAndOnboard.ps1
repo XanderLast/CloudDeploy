@@ -463,4 +463,5 @@ This script installs Chocolatey and minimal default packages. It reads the Clien
 It also removes Windows Consumer Apps and updates Windows.
 .NOTES
 Author: Jurgen Verhelst | ez Networking | www.ez.be
+Edited by : Xander Last | Van Tornhout IT | vt.be 
 #>

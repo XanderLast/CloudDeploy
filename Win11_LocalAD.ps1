@@ -270,5 +270,6 @@ Xbox, ZuneMusic, and ZuneVideo.
 
 .NOTES
 Author: Jurgen Verhelst | ez Networking | www.ez.be
+Edited by : Xander Last | Van Tornhout IT | vt.be 
 Modules Used: @Segura: OSD, AutopilotOOBE @WindosNZ: BurntToast
 #>
