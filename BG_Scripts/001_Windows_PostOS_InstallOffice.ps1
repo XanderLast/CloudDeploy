@@ -49,7 +49,7 @@ Write-Host -ForegroundColor Cyan "             Install Office 365 - Post OS Depl
 Write-Host -ForegroundColor Cyan "========================================================================================="
 Write-Host -ForegroundColor Cyan ""
 Function Generate-XMLFile{
-  Write-Host = " Zed says: Generating an XML file"
+  Write-Host = " X says: Generating an XML file"
   If($ExcludeApps){
     $ExcludeApps | ForEach-Object{
       $ExcludeAppsString += "<ExcludeApp ID =`"$_`" />"
@@ -182,8 +182,8 @@ $ErrorActionPreference = "Stop"
 
 $CurrentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 If(!($CurrentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))){
-    Write-Warning " Zed says: Script is not running as Administrator"
-    Write-Warning " Zed says: Please rerun this script as Administrator."
+    Write-Warning " X says: Script is not running as Administrator"
+    Write-Warning " X says: Please rerun this script as Administrator."
     return
 }
 
@@ -191,8 +191,8 @@ If(!($ConfiguratonXMLFile)){ #If the user didn't specify with -ConfigurationXMLF
   $ConfiguratonXMLFile = Generate-XMLFile
 }Else{
   If(!(Test-Path $ConfiguratonXMLFile)){
-    Write-Warning " Zed says: The configuration XML file is not a valid file"
-    Write-Warning " Zed says: Please check the path and try again"
+    Write-Warning " X says: The configuration XML file is not a valid file"
+    Write-Warning " X says: Please check the path and try again"
     return
   }
 }
@@ -226,17 +226,17 @@ Try{
 #>
 #Run the O365 install
 Try{
-  Write-Host " Zed says: Downloading and installing Office 365"
+  Write-Host " X says: Downloading and installing Office 365"
   #$OfficeInstall = Start-Process "$OfficeInstallDownloadPath\Setup.exe" -ArgumentList "/configure $ConfiguratonXMLFile" -Wait -PassThru
   choco install office365business --params "'/configpath:$ConfiguratonXMLFile'" -y
   If ($LASTEXITCODE -eq 0) {
-    Write-Host " Zed says: Office 365 installed successfully via Chocolatey."
+    Write-Host " X says: Office 365 installed successfully via Chocolatey."
   } Else {
-    Write-Warning " Zed says: Office 365 installation via Chocolatey failed with exit code $LASTEXITCODE."
+    Write-Warning " X says: Office 365 installation via Chocolatey failed with exit code $LASTEXITCODE."
     return
   }
 }Catch{
-  Write-Warning " Zed says: Error running the Office install. The error is below:"
+  Write-Warning " X says: Error running the Office install. The error is below:"
   Write-Warning $_
   return
 }
@@ -256,8 +256,8 @@ Foreach ($Key in (Get-ChildItem $RegLocations) ) {
 }
 
 If($OfficeInstalled){
-  Write-Host " Zed says: $($OfficeVersionInstalled) installed successfully!"
+  Write-Host " X says: $($OfficeVersionInstalled) installed successfully!"
 }Else{
-  Write-Warning " Zed says: Office 365 was not detected after the install ran"
+  Write-Warning " X says: Office 365 was not detected after the install ran"
 }
 Stop-Transcript

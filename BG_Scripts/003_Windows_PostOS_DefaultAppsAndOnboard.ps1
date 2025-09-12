@@ -5,17 +5,17 @@ Write-Host -ForegroundColor Cyan ""
 Write-Host -ForegroundColor Gray "========================================================================================="
 Start-Transcript -Path "C:\VTAutomate\Automation\Logs\CloudDeploy_003_Windows_PostOS_DefaultAppsAndOnboard.log"
 Write-Host -ForegroundColor Gray "========================================================================================="
-Write-Host -ForegroundColor Gray "Z> Setting up Powershell and Repo trusted."
+Write-Host -ForegroundColor Gray "X> Setting up Powershell and Repo trusted."
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-Write-Host -ForegroundColor Gray "Z> Installing OSD Module."
+Write-Host -ForegroundColor Gray "X> Installing OSD Module."
 Install-Module OSD -Force -Verbose
 Import-Module OSD -Force
-Write-Host -ForegroundColor Gray "Z> Installing Burned Toast Module."
+Write-Host -ForegroundColor Gray "X> Installing Burned Toast Module."
 Install-Module burnttoast
 Import-Module burnttoast
 Write-Host -ForegroundColor Gray "========================================================================================="
-write-host "Z> reading the ClientConfig.json file"
+write-host "X> reading the ClientConfig.json file"
 $ClientConfig = Get-Content -Path "C:\VTAutomate\Automation\CloudDeploy\ClientConfig.json" | ConvertFrom-Json
 
 # Checking if the folders exist, if not create them
@@ -40,10 +40,10 @@ foreach ($folder in $foldersToCheck) {
 # Set Do Not Disturb to Off (Dirty Way, not found a better one :) :)
 
 if ($ClientConfig.TaskSeqType -eq "AzureAD") {
-    write-host "Z> AzureAD Task Sequence, skipping Focus Assist"
+    write-host "X> AzureAD Task Sequence, skipping Focus Assist"
 }  
 else {
-    write-host "Z> Setting Focus Assist to Off"
+    write-host "X> Setting Focus Assist to Off"
     # Disable Focus Assist by updating the registry
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" `
     -Name "NOC_GLOBAL_SETTING_TOASTS_ENABLED" `
@@ -52,14 +52,14 @@ else {
     # Confirm the change
     Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" `
     -Name "NOC_GLOBAL_SETTING_TOASTS_ENABLED"
-    Write-Host -ForegroundColor Gray "Z> Focus Assist set to Off"
+    Write-Host -ForegroundColor Gray "X> Focus Assist set to Off"
 }
 
 # Send the toast notification
 $Time = Get-date -Format t
 $Btn = New-BTButton -Content 'OK' -arguments 'ok'
 $Splat = @{
-    Text = 'Z> Starting Installs' , "Let's give this PC some apps and settings. Started $Time"
+    Text = 'X> Starting Installs' , "Let's give this PC some apps and settings. Started $Time"
     Applogo = 'https://iili.io/H8B8JtI.png'
     Sound = 'IM'
     Button = $Btn
@@ -69,33 +69,33 @@ New-BurntToastNotification @splat
 
 
 Write-Host -ForegroundColor Cyan "========================================================================================="
-write-host -ForegroundColor Cyan "Z> User configuration"
+write-host -ForegroundColor Cyan "X> User configuration"
 Write-Host -ForegroundColor Cyan "========================================================================================="
-Write-Host -ForegroundColor Gray "Z> Setting vtadminlocal's password to never expire "
+Write-Host -ForegroundColor Gray "X> Setting vtadminlocal's password to never expire "
 if (Get-LocalUser -Name "vtAdminLocal" -ErrorAction SilentlyContinue) {
     Set-LocalUser -Name "vtAdminLocal" -PasswordNeverExpires $true
-    Write-Host -ForegroundColor Gray "Z> vtAdminLocal user found and password set to never expire."
+    Write-Host -ForegroundColor Gray "X> vtAdminLocal user found and password set to never expire."
 } else {
-    Write-Host -ForegroundColor Yellow "Z> No vtAdminLocal user found, probably an AzureAD install."
+    Write-Host -ForegroundColor Yellow "X> No vtAdminLocal user found, probably an AzureAD install."
 }
 
 Write-Host -ForegroundColor Cyan "========================================================================================="
-write-host -ForegroundColor Cyan "Z> Installing apps and onboarding client to Rmm"
+write-host -ForegroundColor Cyan "X> Installing apps and onboarding client to Rmm"
 Write-Host -ForegroundColor Cyan "========================================================================================="
 
 # Install Choco and minimal default packages
-write-host -ForegroundColor White "Z> Installing Chocolatey"
+write-host -ForegroundColor White "X> Installing Chocolatey"
 
 try {
     Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
     Start-Sleep -s 30
 }
 catch {
-    Write-Error "Z> Chocolatey is already installed or had an error $($_.Exception.Message)"
+    Write-Error "X> Chocolatey is already installed or had an error $($_.Exception.Message)"
 }
 
 # -y confirm yes for any prompt during the install process
-write-host "Z> Installing Chocolatey packages"
+write-host "X> Installing Chocolatey packages"
 choco install googlechrome -y --ignore-checksums
 choco install treesizefree -y --ignore-checksums
 choco install dotnet-8.0-desktopruntime -y
@@ -103,10 +103,10 @@ Write-Host -ForegroundColor Gray "==============================================
 
 
 # Install Rmm and RS
-write-host -ForegroundColor White "Z> RMM - Downloading and installing it for customer $($ClientConfig.RmmId)"
+write-host -ForegroundColor White "X> RMM - Downloading and installing it for customer $($ClientConfig.RmmId)"
 
 $Splat = @{
-    Text = 'Z> Installing RMM' , "Downloading and installing... Started $Time"
+    Text = 'X> Installing RMM' , "Downloading and installing... Started $Time"
     Applogo = 'https://iili.io/H8B8JtI.png'
     Sound = 'IM'
 }
@@ -114,13 +114,13 @@ New-BurntToastNotification @splat
 
 try {
     $RmmUrl = "http://support.ez.be/GetAgent/Windows/?cid=$($ClientConfig.RmmId)" + '&aid=0013z00002YbbGCAAZ'
-    Write-Host -ForegroundColor Gray "Z> Downloading RmmInstaller.msi from $RmmUrl"
+    Write-Host -ForegroundColor Gray "X> Downloading RmmInstaller.msi from $RmmUrl"
     Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VTAutomate\RMM\RmmInstaller.msi"
     Start-Process -FilePath "C:\VTAutomate\RMM\RmmInstaller.msi" -ArgumentList "/quiet" -Wait
     
 }
 catch {
-    Write-Error "Z> Rmm is already installed or had an error $($_.Exception.Message)"
+    Write-Error "X> Rmm is already installed or had an error $($_.Exception.Message)"
 }
 
 <#
@@ -177,22 +177,22 @@ if ($exitCode -eq 0) {
 #>
 
 # Download the Office Install script from github
-Write-Host -ForegroundColor White "Z> Office 365 Install."
+Write-Host -ForegroundColor White "X> Office 365 Install."
 try {
     $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/001_Windows_PostOS_InstallOffice.ps1" -UseBasicParsing 
     $DefaultAppsAndOnboardScript = $DefaultAppsAndOnboardResponse.content
-    Write-Host -ForegroundColor Gray "Z> Saving the script to c:\VTAutomate\Automation\CloudDeploy\Scripts\"
+    Write-Host -ForegroundColor Gray "X> Saving the script to c:\VTAutomate\Automation\CloudDeploy\Scripts\"
     $DefaultAppsAndOnboardScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\InstallOffice365.ps1"
     $DefaultAppsAndOnboardScript | Out-File -FilePath $DefaultAppsAndOnboardScriptPath -Encoding UTF8
 }
 catch {
-    Write-Error "Z> I was unable to download the Office Install script."
+    Write-Error "X> I was unable to download the Office Install script."
 }
 
 # Running the Office Install script
 $scriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\InstallOffice365.ps1"
 
-Write-Host -ForegroundColor Gray "Z> Running the Office Install script."
+Write-Host -ForegroundColor Gray "X> Running the Office Install script."
 
 $process = Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" -PassThru
 
@@ -204,16 +204,16 @@ $exitCode = $process.ExitCode
 
 if ($exitCode -eq 0) {
     # Process completed successfully
-    Write-Host -ForegroundColor Gray "Z> Office 365 Install Script execution finished."
+    Write-Host -ForegroundColor Gray "X> Office 365 Install Script execution finished."
 } else {
     # Process encountered an error
-    Write-Error "Z> Office 365 Install Script execution failed with exit code: $exitCode"
+    Write-Error "X> Office 365 Install Script execution failed with exit code: $exitCode"
 }
 
 
 
 Write-Host -ForegroundColor Cyan "========================================================================================="
-write-host -ForegroundColor Cyan "Z> Removing apps and updating Windows"
+write-host -ForegroundColor Cyan "X> Removing apps and updating Windows"
 Write-Host -ForegroundColor Cyan "========================================================================================="
 
 # Check if we're running in OOBE context or post-OS
@@ -234,25 +234,25 @@ try {
     # Method 3: Check if we're running as SYSTEM (common in OOBE Shift+F10)
     $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
     if ($currentUser -eq "NT AUTHORITY\SYSTEM") {
-        Write-Host -ForegroundColor Yellow "Z> Running as SYSTEM - likely OOBE context (Shift+F10)"
+        Write-Host -ForegroundColor Yellow "X> Running as SYSTEM - likely OOBE context (Shift+F10)"
         $isInOOBE = $true
     }
     
-    Write-Host -ForegroundColor Gray "Z> OOBE Detection Results:"
+    Write-Host -ForegroundColor Gray "X> OOBE Detection Results:"
     Write-Host -ForegroundColor Gray "   Current User: $currentUser"
     Write-Host -ForegroundColor Gray "   ImageState: $($oobeStatus.ImageState)"
     Write-Host -ForegroundColor Gray "   OOBE Process Running: $(if($oobeProcess){'Yes'}else{'No'})"
     Write-Host -ForegroundColor Gray "   Detected OOBE Context: $(if($isInOOBE){'Yes'}else{'No'})"
     
 } catch {
-    Write-Host -ForegroundColor Yellow "Z> Could not determine OOBE status: $($_.Exception.Message)"
-    Write-Host -ForegroundColor Yellow "Z> Assuming post-OOBE environment"
+    Write-Host -ForegroundColor Yellow "X> Could not determine OOBE status: $($_.Exception.Message)"
+    Write-Host -ForegroundColor Yellow "X> Assuming post-OOBE environment"
     $isInOOBE = $false
 }
 
 if ($isInOOBE) {
-    Write-Host -ForegroundColor Green "Z> OOBE Mode Detected - Using Start-OOBEDeploy method"
-    Write-Host -ForegroundColor Gray "Z> Removing apps: CommunicationsApps,OfficeHub,People,Skype,Solitaire,Xbox,ZuneMusic,ZuneVideo"
+    Write-Host -ForegroundColor Green "X> OOBE Mode Detected - Using Start-OOBEDeploy method"
+    Write-Host -ForegroundColor Gray "X> Removing apps: CommunicationsApps,OfficeHub,People,Skype,Solitaire,Xbox,ZuneMusic,ZuneVideo"
     $Params = @{
         Autopilot = $false
         RemoveAppx = "CommunicationsApps","OfficeHub","People","Skype","Solitaire","Xbox","ZuneMusic","ZuneVideo"
@@ -261,21 +261,21 @@ if ($isInOOBE) {
     }
     try {
         Start-OOBEDeploy @Params
-        Write-Host -ForegroundColor Green "Z> Start-OOBEDeploy completed successfully"
+        Write-Host -ForegroundColor Green "X> Start-OOBEDeploy completed successfully"
     } catch {
-        Write-Host -ForegroundColor Red "Z> Start-OOBEDeploy failed: $($_.Exception.Message)"
-        Write-Host -ForegroundColor Yellow "Z> Falling back to alternative app removal method"
+        Write-Host -ForegroundColor Red "X> Start-OOBEDeploy failed: $($_.Exception.Message)"
+        Write-Host -ForegroundColor Yellow "X> Falling back to alternative app removal method"
         # Fall back to post-OOBE method
         Invoke-PostOOBEAppRemoval
     }
 } else {
-    Write-Host -ForegroundColor Green "Z> Post-OOBE Mode Detected - Using alternative app removal method"
+    Write-Host -ForegroundColor Green "X> Post-OOBE Mode Detected - Using alternative app removal method"
     Invoke-PostOOBEAppRemoval
 }
 
 # Function for post-OOBE app removal and updates
 function Invoke-PostOOBEAppRemoval {
-    Write-Host -ForegroundColor Gray "Z> Removing unwanted apps using Get-AppxPackage method"
+    Write-Host -ForegroundColor Gray "X> Removing unwanted apps using Get-AppxPackage method"
     
     $appsToRemove = @(
         "*Microsoft.BingNews*",
@@ -307,21 +307,21 @@ function Invoke-PostOOBEAppRemoval {
             $packages = Get-AppxPackage -Name $app -AllUsers -ErrorAction SilentlyContinue
             if ($packages) {
                 $packages | Remove-AppxPackage -ErrorAction SilentlyContinue
-                Write-Host -ForegroundColor Gray "Z> Removed package: $app"
+                Write-Host -ForegroundColor Gray "X> Removed package: $app"
             }
             
             $provisionedPackages = Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like $app -ErrorAction SilentlyContinue
             if ($provisionedPackages) {
                 $provisionedPackages | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
-                Write-Host -ForegroundColor Gray "Z> Removed provisioned package: $app"
+                Write-Host -ForegroundColor Gray "X> Removed provisioned package: $app"
             }
         } catch {
-            Write-Host -ForegroundColor Yellow "Z> Could not remove $app : $($_.Exception.Message)"
+            Write-Host -ForegroundColor Yellow "X> Could not remove $app : $($_.Exception.Message)"
         }
     }
     
     # Handle Windows Updates separately for post-OOBE
-    Write-Host -ForegroundColor Gray "Z> Checking for Windows Updates..."
+    Write-Host -ForegroundColor Gray "X> Checking for Windows Updates..."
     try {
         if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
             Install-Module PSWindowsUpdate -Force -Scope CurrentUser -ErrorAction SilentlyContinue
@@ -330,21 +330,21 @@ function Invoke-PostOOBEAppRemoval {
         
         $updates = Get-WindowsUpdate -ErrorAction SilentlyContinue
         if ($updates) {
-            Write-Host -ForegroundColor Gray "Z> Installing $($updates.Count) Windows Updates..."
+            Write-Host -ForegroundColor Gray "X> Installing $($updates.Count) Windows Updates..."
             Install-WindowsUpdate -AcceptAll -IgnoreReboot -ErrorAction SilentlyContinue
         } else {
-            Write-Host -ForegroundColor Gray "Z> No Windows Updates available"
+            Write-Host -ForegroundColor Gray "X> No Windows Updates available"
         }
     } catch {
-        Write-Host -ForegroundColor Yellow "Z> Windows Update check failed: $($_.Exception.Message)"
-        Write-Host -ForegroundColor Gray "Z> Updates can be installed manually later"
+        Write-Host -ForegroundColor Yellow "X> Windows Update check failed: $($_.Exception.Message)"
+        Write-Host -ForegroundColor Gray "X> Updates can be installed manually later"
     }
 }
 
 
 Write-Host ""
 Write-Host -ForegroundColor Cyan "========================================================================================="
-write-host -ForegroundColor Cyan "Z> Synching Client Folders"
+write-host -ForegroundColor Cyan "X> Synching Client Folders"
 Write-Host -ForegroundColor Cyan "========================================================================================="
 
 # Define function to handle SFTP file download
@@ -376,57 +376,57 @@ function Process-SFTPItems {
 }
 
 # 1.0 Set the security protocol to TLS 1.2
-Write-Host "Z> 1.0 Setting Security Protocol to TLS 1.2..."
+Write-Host "X> 1.0 Setting Security Protocol to TLS 1.2..."
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # 1.1 Install the NuGet provider if it's not installed
-Write-Host "Z> 1.1 Checking and installing the NuGet provider if necessary..."
+Write-Host "X> 1.1 Checking and installing the NuGet provider if necessary..."
 try {
     Install-PackageProvider -Name NuGet -Force -Scope CurrentUser -ForceBootstrap -ErrorAction Stop
-    Write-Host "Z> 1.1.1 NuGet provider installed or already present."
+    Write-Host "X> 1.1.1 NuGet provider installed or already present."
 } catch {
-    Write-Host "Z> 1.1.2 Error: Failed to install the NuGet provider. Exception: $($_.Exception.Message)"
+    Write-Host "X> 1.1.2 Error: Failed to install the NuGet provider. Exception: $($_.Exception.Message)"
     Stop-TranscriptSafely
     return
 }
 
 # 1.1 Ensure the PSGallery repository is trusted
-Write-Host "Z> 1.2 Ensuring the PSGallery repository is trusted..."
+Write-Host "X> 1.2 Ensuring the PSGallery repository is trusted..."
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 
 # 1.3 Setup Execution Policy
-Write-Host "Z> 1.3 Setting Execution Policy to RemoteSigned for the current session..."
+Write-Host "X> 1.3 Setting Execution Policy to RemoteSigned for the current session..."
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
 
 # 1.4 Install and import the Posh-SSH module
-Write-Host "Z> 1.4 Installing and importing the Posh-SSH module"
+Write-Host "X> 1.4 Installing and importing the Posh-SSH module"
 $moduleInstalled = Get-Module -ListAvailable -Name 'Posh-SSH'
 
 if (-not $moduleInstalled) {
-    Write-Host "Z> 1.4.1 Posh-SSH module not found. Attempting to install..."
+    Write-Host "X> 1.4.1 Posh-SSH module not found. Attempting to install..."
     try {
         Install-Module -Name 'Posh-SSH' -AllowClobber -Force -ErrorAction Stop
-        Write-Host "Z> 1.4.2 Posh-SSH module installed successfully."
+        Write-Host "X> 1.4.2 Posh-SSH module installed successfully."
     } catch {
-        Write-Host "Z> 1.4.2 Error: Failed to install the Posh-SSH module. Exception: $($_.Exception.Message)"
+        Write-Host "X> 1.4.2 Error: Failed to install the Posh-SSH module. Exception: $($_.Exception.Message)"
         Stop-Transcript
         return
     }
 } else {
-    Write-Host "Z> 1.4.1 Posh-SSH module is already installed."
+    Write-Host "X> 1.4.1 Posh-SSH module is already installed."
 }
 
 # 1.5 Import the Posh-SSH module
 try {
     Import-Module -Name 'Posh-SSH' -ErrorAction Stop
-    Write-Host "Z> 1.4.3 Posh-SSH module imported successfully."
+    Write-Host "X> 1.4.3 Posh-SSH module imported successfully."
 } catch {
-    Write-Host "Z> 1.4.3 Error: Failed to import the Posh-SSH module. Exception: $($_.Exception.Message)"
+    Write-Host "X> 1.4.3 Error: Failed to import the Posh-SSH module. Exception: $($_.Exception.Message)"
     Stop-Transcript
     return
 }
 
-Write-Host "Z> 1.4.1 Posh-SSH module is already installed."
+Write-Host "X> 1.4.1 Posh-SSH module is already installed."
 
 # 2. Define file and directory locations
 $localDirectory = "C:\VTAutomate\"
@@ -435,31 +435,31 @@ $ftpRemoteDirectory = "/SupportFolderClients"
 
 # 2.2 Check if local directory exists, if not create it
 if (-not (Test-Path $localDirectory)) {
-    Write-Host "Z> 2.2.1 Local directory $localDirectory does not exist. Creating directory..."
+    Write-Host "X> 2.2.1 Local directory $localDirectory does not exist. Creating directory..."
     try {
         New-Item -ItemType Directory -Path $localDirectory -Force
-        Write-Host "Z> 2.2.2 Directory created successfully."
+        Write-Host "X> 2.2.2 Directory created successfully."
     } catch {
-        Write-Host "Z> 2.2.2 Error: Failed to create local directory. Exception: $($_.Exception.Message)"
+        Write-Host "X> 2.2.2 Error: Failed to create local directory. Exception: $($_.Exception.Message)"
         Stop-Transcript
         return
     }
 } else {
-    Write-Host "Z> 2.2.1 Local directory $localDirectory already exists."
+    Write-Host "X> 2.2.1 Local directory $localDirectory already exists."
 }
 
 # 2.3 Connect to the SFTP server and download the file
-Write-Host "Z> 2.3 Connecting to SFTP server at ftp.driveHQ.com..."
+Write-Host "X> 2.3 Connecting to SFTP server at ftp.driveHQ.com..."
 try {
     $SftpSession = New-SFTPSession -ComputerName "ftp.driveHQ.com" -Credential (New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "ezpublic", (ConvertTo-SecureString "MakesYourNetWork" -AsPlainText -Force)) -Port 22 -AcceptKey -ErrorAction Stop
     
     # Call the Process-SFTPItems function to download files
     Process-SFTPItems -SftpSession $SftpSession -LocalPath $localDirectory -RemotePath $ftpRemoteDirectory
     
-    Write-Host "Z> 2.3.1 Download completed. Disconnecting from SFTP server..."
+    Write-Host "X> 2.3.1 Download completed. Disconnecting from SFTP server..."
     Remove-SFTPSession -SFTPSession $SftpSession
 } catch {
-    Write-Host "Z> 2.3.2 Error: Failed to connect to SFTP server. Exception: $($_.Exception.Message)"
+    Write-Host "X> 2.3.2 Error: Failed to connect to SFTP server. Exception: $($_.Exception.Message)"
     Stop-Transcript
     return
 }
@@ -503,7 +503,7 @@ Write-Host "Z> 2.6 ez Support Companion MSI client installed and configured succ
 
 $Time = Get-date -Format t
 $Splat = @{
-    Text = 'Z> Default apps script finished' , "Installed Choco, RMM, Office 365 Finished $Time"
+    Text = 'X> Default apps script finished' , "Installed Choco, RMM, Office 365 Finished $Time"
     Applogo = 'https://iili.io/H8B8JtI.png'
     Sound = 'IM'
 }
@@ -511,30 +511,30 @@ New-BurntToastNotification @splat
 
 Write-host ""
 Write-Host -ForegroundColor Cyan "========================================================================================="
-write-host -ForegroundColor Cyan "Z> Installing client Finished." 
-write-host -ForegroundColor Cyan "Z> You can deliver the computer to the client now."
-Write-Host -ForegroundColor Cyan "Z> All script tasks have been completed, please check for additional powershell boxes."
+write-host -ForegroundColor Cyan "X> Installing client Finished." 
+write-host -ForegroundColor Cyan "X> You can deliver the computer to the client now."
+Write-Host -ForegroundColor Cyan "X> All script tasks have been completed, please check for additional powershell boxes."
 
 Stop-Transcript
-$finishAction = Read-Host -Prompt "Z> What would you like to do next?`n[1] Shut down the computer`n[2] Just close the script`n[3] Restart the computer`nEnter your choice (1-3)"
+$finishAction = Read-Host -Prompt "X> What would you like to do next?`n[1] Shut down the computer`n[2] Just close the script`n[3] Restart the computer`nEnter your choice (1-3)"
 
 switch ($finishAction) {
     "1" {
-        Write-Host -ForegroundColor Cyan "Z> Shutting down the computer in 10 seconds..."
+        Write-Host -ForegroundColor Cyan "X> Shutting down the computer in 10 seconds..."
         Start-Sleep -Seconds 5
         Stop-Computer -Force
     }
     "2" {
-        Write-Host -ForegroundColor Cyan "Z> Exiting the script. Goodbye!"
+        Write-Host -ForegroundColor Cyan "X> Exiting the script. Goodbye!"
         Exit
     }
     "3" {
-        Write-Host -ForegroundColor Cyan "Z> Restarting the computer in 10 seconds..."
+        Write-Host -ForegroundColor Cyan "X> Restarting the computer in 10 seconds..."
         Start-Sleep -Seconds 5
         Restart-Computer -Force
     }
     default {
-        Write-Host -ForegroundColor Yellow "Z> Invalid choice. Script will exit without additional actions."
+        Write-Host -ForegroundColor Yellow "X> Invalid choice. Script will exit without additional actions."
         Exit
     }
 }

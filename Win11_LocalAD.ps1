@@ -26,7 +26,7 @@ Block-WindowsVersionNe10
 Block-PowerShellVersionLt5
 
 #Install-Module OSD -Force
-Write-Host -ForegroundColor White "Z> Installing Modules and starting OS Deploy"
+Write-Host -ForegroundColor White "X> Installing Modules and starting OS Deploy"
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 Import-Module OSD -Force
 
@@ -58,7 +58,7 @@ Write-Host -ForegroundColor White "=============================================
 Write-Host -ForegroundColor Cyan ""
 Write-Host -ForegroundColor Gray "========================================================================================="
 
-Write-Host -ForegroundColor White "Z> Let's check if the folders exist, if not create them"
+Write-Host -ForegroundColor White "X> Let's check if the folders exist, if not create them"
 $folders = "c:\Windows\System32\Oobe\Info", "c:\windows\System32\Oobe\Info\Default", "c:\VTAutomate\Automation\CloudDeploy\AutoUnattend", "c:\VTAutomate\Automation\Logs", "c:\VTAutomate\Automation\CloudDeploy\Scripts", "C:\ProgramData\OSDeploy"
 foreach ($folder in $folders) {
     if (!(Test-Path $folder)) {
@@ -66,16 +66,16 @@ foreach ($folder in $folders) {
             New-Item -ItemType Directory -Path $folder | Out-Null    
         }
         catch {
-            Write-Error "Z> $folder already exists or you don't have the rights to create it"
+            Write-Error "X> $folder already exists or you don't have the rights to create it"
         }    }
     else {
-        Write-Host -ForegroundColor Gray "Z> $folder already exists"
+        Write-Host -ForegroundColor Gray "X> $folder already exists"
     }
 }
 
 Write-Host -ForegroundColor Gray "========================================================================================="
 # Create a json config file with the ezRmmId
-Write-Host -ForegroundColor White "Z> Creating a json config file with the ezRmmId"
+Write-Host -ForegroundColor White "X> Creating a json config file with the ezRmmId"
 $ClientConfig = @{
     TaskSeqType = "LocalAD"
     ezRmmId = $ezRmmId
@@ -83,7 +83,7 @@ $ClientConfig = @{
 $ClientConfig | ConvertTo-Json | Out-File -FilePath "C:\VTAutomate\Automation\CloudDeploy\ClientConfig.json" -Encoding UTF8
 Write-Host -ForegroundColor Gray "========================================================================================="
 # Put our autoUnattend xml template for Local AD OOBE in a variable
-Write-Host -ForegroundColor White "Z> Updating our Unattend xml for Local AD OOBE (no online useraccount page)"
+Write-Host -ForegroundColor White "X> Updating our Unattend xml for Local AD OOBE (no online useraccount page)"
 $unattendXml = @"
 <?xml version="1.0" encoding="utf-8"?>
 <unattend xmlns="urn:schemas-microsoft-com:unattend">
@@ -164,7 +164,7 @@ $unattendXml = @"
 "@
 
 # Write the updated unattend.xml file to c:\VTAutomate\Automation\CloudDeploy\AutoUnattend\
-Write-Host -ForegroundColor White "Z>Writing the unattend.xml file to c:\VTAutomate\Automation\CloudDeploy\AutoUnattend\"
+Write-Host -ForegroundColor White "X>Writing the unattend.xml file to c:\VTAutomate\Automation\CloudDeploy\AutoUnattend\"
 write-host -ForegroundColor Gray "$unattendXml"
 $unattendPath = "C:\VTAutomate\Automation\CloudDeploy\AutoUnattend\LocalAdUnattend.xml"
 try {
@@ -172,39 +172,39 @@ try {
     
 }
 catch {
-    Write-Error "Z>$unattendPath already exists or you don't have the rights to create it"
+    Write-Error "X>$unattendPath already exists or you don't have the rights to create it"
 }
 Write-Host -ForegroundColor Gray "========================================================================================="
 
 # Download the DefaultAppsAndOnboard.ps1 script from github
-Write-Host -ForegroundColor Gray "Z>Downloading the DefaultAppsAndOnboardScript.ps1 script from CloudDeploy."
+Write-Host -ForegroundColor Gray "X>Downloading the DefaultAppsAndOnboardScript.ps1 script from CloudDeploy."
 try {
     $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/003_Windows_PostOS_DefaultAppsAndOnboard.ps1" -UseBasicParsing 
     $DefaultAppsAndOnboardScript = $DefaultAppsAndOnboardResponse.content
-    Write-Host -ForegroundColor Gray "Z>Saving the Onboard script to c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
+    Write-Host -ForegroundColor Gray "X>Saving the Onboard script to c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
     $DefaultAppsAndOnboardScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
     $DefaultAppsAndOnboardScript | Out-File -FilePath $DefaultAppsAndOnboardScriptPath -Encoding UTF8
 }
 catch {
-    Write-Error " Z> I was unable to download the DefaultAppsAndOnboardScript script."
+    Write-Error " X> I was unable to download the DefaultAppsAndOnboardScript script."
 }
 
 Write-Host -ForegroundColor Gray "========================================================================================="
 # Download the JoinDomainAtFirstLogin.ps1 script from github
-Write-Host -ForegroundColor Gray " Z> Downloading the JoinDomainAtFirstLogin GUI."
+Write-Host -ForegroundColor Gray " X> Downloading the JoinDomainAtFirstLogin GUI."
 try {
     $JoinDomainAtFirstLoginResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/004_Windows_PostOOBE_JoinDomainAtFirstLogin.ps1" -UseBasicParsing 
     $JoinDomainAtFirstLoginScript = $JoinDomainAtFirstLoginResponse.content
-    Write-Host -ForegroundColor Gray " Z> Saving the AD Join script to c:\VTAutomate\Automation\CloudDeploy\Scripts"
+    Write-Host -ForegroundColor Gray " X> Saving the AD Join script to c:\VTAutomate\Automation\CloudDeploy\Scripts"
     $JoinDomainAtFirstLoginScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\JoinDomainAtFirstLogin.ps1"
     $JoinDomainAtFirstLoginScript | Out-File -FilePath $JoinDomainAtFirstLoginScriptPath -Encoding UTF8
     }
 catch {
-    Write-Error " Z> I was unable to download the JoinDomainAtFirstLogin script from github"
+    Write-Error " X> I was unable to download the JoinDomainAtFirstLogin script from github"
 }
 Write-Host -ForegroundColor Gray "========================================================================================="
 # Set the unattend.xml file in the offline registry
-Write-Host -ForegroundColor Gray " Z> Setting the unattend.xml file in the offline registry"
+Write-Host -ForegroundColor Gray " X> Setting the unattend.xml file in the offline registry"
 reg load HKLM\TempSYSTEM "C:\Windows\System32\Config\SYSTEM"
 reg add HKLM\TempSYSTEM\Setup /v UnattendFile /d $unattendPath /f
 reg unload HKLM\TempSYSTEM
