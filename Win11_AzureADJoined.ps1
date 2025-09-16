@@ -168,10 +168,6 @@ start "Set Location" /wait PowerShell -NoL -C Set-WinHomeLocation -GeoId 20
 
 :: Install the latest OSD and AutopilotOOBE Modules
 start "Install-Module OSD" /wait PowerShell -NoL -C Install-Module OSD -Force -Verbose
-start "Install-Module AutopilotOOBE" /wait PowerShell -NoL -C Install-Module AutopilotOOBE -Force -Verbose
-
-:: Start-AutopilotOOBE
-start "Start-AutopilotOOBE" /wait PowerShell -NoL -C Start-AutopilotOOBE -Title 'Cloud Deploy Autopilot Reg' -GroupTag Win-Autopilot01 -Assign -AssignedComputerName "{0}"
 
 :: Start Onboarding
 start "Default apps & Onboarding" PowerShell -NoL -C "c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
