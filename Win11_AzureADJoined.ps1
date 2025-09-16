@@ -193,7 +193,7 @@ Write-Warning "  ===============================================================
 Write-Warning "  If you don't see any errors above you can reboot the pc and wait for OOBE."
 Write-Warning "  Click OK for Country and KBD. Then press Shift + F10 to open a command prompt and type:"
 Write-Warning "                           AutomateOOBE.cmd "
-Write-Warning "  Default apps install, onboard RMM, remove MS apps, updates and start the Autopilot GUI."
+Write-Warning "  Default apps install, onboard RMM, remove MS apps and updates."
 Write-Warning "  ========================================================================================="
 Write-Host " "
 Write-Warning "  If you do see errors, please check the log file at $transcriptPath."
