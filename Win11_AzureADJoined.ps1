@@ -80,6 +80,7 @@ Write-Host -ForegroundColor White "X> Creating a json config file with the RmmId
 $ClientConfig = @{
     TaskSeqType = "AzureAD"
     RmmId = $RmmId
+    Computername = $Computername
 }
 $ClientConfig | ConvertTo-Json | Out-File -FilePath "C:\VTAutomate\Automation\CloudDeploy\ClientConfig.json" -Encoding UTF8
 Write-Host -ForegroundColor Gray "========================================================================================="

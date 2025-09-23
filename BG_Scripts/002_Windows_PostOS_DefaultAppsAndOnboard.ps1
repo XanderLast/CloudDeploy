@@ -116,7 +116,7 @@ try {
     $RmmUrl = "http://support.ez.be/GetAgent/Windows/?cid=$($ClientConfig.RmmId)" + '&aid=0013z00002YbbGCAAZ'
     Write-Host -ForegroundColor Gray "X> Downloading RmmInstaller.msi from $RmmUrl"
     Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VTAutomate\RMM\RmmInstaller.msi"
-    Start-Process -FilePath "C:\VTAutomate\RMM\RmmInstaller.msi" -ArgumentList "/quiet" -Wait
+    Start-Process -FilePath "C:\VTAutomate\RMM\RmmInstaller.msi" -ArgumentList "/qn" -Wait
     
 }
 catch {
