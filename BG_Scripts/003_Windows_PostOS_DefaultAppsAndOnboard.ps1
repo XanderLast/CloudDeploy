@@ -113,14 +113,20 @@ $Splat = @{
 New-BurntToastNotification @splat 
 
 try {
+    # Define the URL. Note: The URL is a placeholder and may need to be modified.
     $RmmUrl = "http://support.ez.be/GetAgent/Windows/?cid=$($ClientConfig.RmmId)" + '&aid=0013z00002YbbGCAAZ'
-    Write-Host -ForegroundColor Gray "X> Downloading RmmInstaller.msi from $RmmUrl"
-    Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VTAutomate\RMM\RmmInstaller.msi"
-    Start-Process -FilePath "C:\VTAutomate\RMM\RmmInstaller.msi" -ArgumentList "/qn" -Wait
     
+    # Download the RmmInstaller.msi file.
+    Write-Host -ForegroundColor Gray "X> Downloading RmmInstaller.msi from $RmmUrl"
+    Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VTAutomate\RMM\RmmInstaller.msi" -ErrorAction Stop
+    
+    # Start the installer silently and wait for it to complete.
+    Write-Host -ForegroundColor Green "X> Download successful. Starting silent installation."
+    Start-Process -FilePath "C:\VTAutomate\RMM\RmmInstaller.msi" -ArgumentList "/qn" -Wait
+    Write-Host -ForegroundColor Green "X> Installation completed."
 }
 catch {
-    Write-Error "X> Rmm is already installed or had an error $($_.Exception.Message)"
+    Write-Error "X> Rmm is already installed or had an error: $($_.Exception.Message)"
 }
 
 <#
