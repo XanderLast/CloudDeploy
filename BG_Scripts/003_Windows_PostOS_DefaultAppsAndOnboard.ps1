@@ -113,39 +113,17 @@ $Splat = @{
 New-BurntToastNotification @splat 
 
 try {
-
-  # Set the path to your Atera RMM installer file.
-$installerPath = "C:\VTAutomate\RMM\Rmminstaller.msi"
-
-# Log script start
-Write-Host "--- Atera RMM Installer Automation Script ---" -ForegroundColor Green
-Write-Host "Starting script with administrator privileges."
-
-# Check if the installer file exists.
-if (-not (Test-Path -Path $installerPath)) {
-    Write-Host "Error: Installer file not found at '$installerPath'. Please verify the path." -ForegroundColor Red
-    exit 1
-}
-
-# Start the installer with msiexec in quiet mode.
-Write-Host "Starting the MSI installer with '/qn' argument for quiet mode."
-Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$installerPath`" /qn" -PassThru -NoNewWindow
-
-# Wait for a fixed amount of time for the prompt to appear and gain focus.
-$waitTime = 20
-Write-Host "Waiting for $waitTime seconds for the prompt to appear..."
-Start-Sleep -Seconds $waitTime
-
-# Create a Wscript.Shell object to send keystrokes.
-$wshell = New-Object -ComObject Wscript.Shell
-
-# Send the 'Enter' keypress to the active window.
-Write-Host "Sending the 'Enter' key to the active window."
-$wshell.SendKeys("~") 
-
-Write-Host "Keystroke sent. The installer should now proceed."
-Write-Host "Script execution completed." -ForegroundColor Green
-
+    # Define the URL. Note: The URL is a placeholder and may need to be modified.
+    $RmmUrl = "http://support.ez.be/GetAgent/Windows/?cid=$($ClientConfig.RmmId)" + '&aid=0013z00002YbbGCAAZ'
+    
+    # Download the RmmInstaller.msi file.
+    Write-Host -ForegroundColor Gray "X> Downloading RmmInstaller.msi from $RmmUrl"
+    Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VTAutomate\RMM\RmmInstaller.msi" -ErrorAction Stop
+    
+    # Start the installer silently and wait for it to complete.
+    Write-Host -ForegroundColor Green "X> Download successful. Starting silent installation."
+    Start-Process -FilePath "C:\VTAutomate\RMM\RmmInstaller.msi" -ArgumentList "/qn" -Wait
+    Write-Host -ForegroundColor Green "X> Installation completed."
 }
 catch {
     Write-Error "X> Rmm is already installed or had an error: $($_.Exception.Message)"
