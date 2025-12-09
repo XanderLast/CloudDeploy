@@ -27,7 +27,7 @@ Last Updated: 19/2/23
 
 [CmdletBinding(DefaultParameterSetName = 'XMLFile')]
 Param(
-  [Parameter(Mandatory=$false)][string]$LogPath = "c:\VTAutomate\Automation\logs\RMM_Office365Install.log",
+  [Parameter(Mandatory=$false)][string]$LogPath = "c:\VanTornhout\Automation\logs\RMM_Office365Install.log",
   [Parameter(ParameterSetName = "XMLFile")][ValidateNotNullOrEmpty()][String]$ConfiguratonXMLFile,
   [Parameter(ParameterSetName = "NoXML")][ValidateSet("TRUE","FALSE")]$AcceptEULA = "TRUE",
   [Parameter(ParameterSetName = "NoXML")][ValidateSet("SemiAnnual","Current","Monthly")]$Channel = "Monthly",
@@ -37,12 +37,12 @@ Param(
   [Parameter(ParameterSetName = "NoXML")][ValidateSet("O365ProPlusRetail","O365BusinessRetail")]$OfficeEdition = "O365BusinessRetail",
   [Parameter(ParameterSetName = "NoXML")][ValidateSet(0,1)]$SharedComputerLicensing = "0",
   [Parameter(ParameterSetName = "NoXML")][ValidateSet("TRUE","FALSE")]$EnableUpdates = "TRUE",
-  [Parameter(ParameterSetName = "NoXML")][String]$LoggingPath = "c:\VTAutomate\Automation\Logs",
+  [Parameter(ParameterSetName = "NoXML")][String]$LoggingPath = "c:\VanTornhout\Automation\Logs",
   [Parameter(ParameterSetName = "NoXML")][String]$SourcePath,
   [Parameter(ParameterSetName = "NoXML")][ValidateSet("TRUE","FALSE")]$PinItemsToTaskbar = "TRUE",
   [Parameter(ParameterSetName = "NoXML")][Switch]$KeepMSI = $False,
   [Parameter(ParameterSetName = "NoXML")][string]$adDomainNetbiosName =  (gwmi WIN32_ComputerSystem).Domain,
-  [Parameter(ParameterSetName = "NoXML")][String]$OfficeInstallDownloadPath = "c:\VTAutomate\Automation\Apps\Office365Install"
+  [Parameter(ParameterSetName = "NoXML")][String]$OfficeInstallDownloadPath = "c:\VanTornhout\Automation\Apps\Office365Install"
 )
 Write-Host -ForegroundColor Cyan "========================================================================================="
 Write-Host -ForegroundColor Cyan "             Install Office 365 - Post OS Deployment"
@@ -172,7 +172,7 @@ Function Get-ODTURL {
 #>
 
 ## Check ezNetworkingdirs OK zijn
-If(-Not(Test-Path -path "c:\VTAutomate\Automation\Logs")){New-Item -path "c:\VTAutomate\Automation\Logs"  -ItemType Directory -ErrorAction Stop | Out-Null}
+If(-Not(Test-Path -path "c:\VanTornhout\Automation\Logs")){New-Item -path "c:\VanTornhout\Automation\Logs"  -ItemType Directory -ErrorAction Stop | Out-Null}
 If(-Not(Test-Path $OfficeInstallDownloadPath )){New-Item -Path $OfficeInstallDownloadPath  -ItemType Directory -ErrorAction Stop | Out-Null}
 
 Start-Transcript $LogPath
