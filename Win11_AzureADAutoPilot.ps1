@@ -46,7 +46,7 @@ Start-OSDCloud @Params
 
 Write-Host -ForegroundColor Gray "========================================================================================="
 # Start transcript
-$transcriptPath = "c:\VTAutomate\Automation\Logs\CloudDeploy_TaskSequence_AzureAD.log"
+$transcriptPath = "c:\VanTornhout\Automation\Logs\CloudDeploy_TaskSequence_AzureAD.log"
 Start-Transcript -Path $transcriptPath
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host ""
@@ -60,7 +60,7 @@ Write-Host -ForegroundColor Cyan ""
 
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host -ForegroundColor White "X> Let's check if the folders exist, if not create them"
-$folders = "c:\Windows\System32\Oobe\Info", "c:\windows\System32\Oobe\Info\Default", "c:\VTAutomate\Automation\CloudDeploy\AutoUnattend", "c:\VTAutomate\Automation\Logs", "c:\VTAutomate\Automation\CloudDeploy\Scripts", "C:\ProgramData\OSDeploy"
+$folders = "c:\Windows\System32\Oobe\Info", "c:\windows\System32\Oobe\Info\Default", "c:\VanTornhout\Automation\CloudDeploy\AutoUnattend", "c:\VanTornhout\Automation\Logs", "c:\VanTornhout\Automation\CloudDeploy\Scripts", "C:\ProgramData\OSDeploy"
 foreach ($folder in $folders) {
     if (!(Test-Path $folder)) {
         try {
@@ -81,7 +81,7 @@ $ClientConfig = @{
     TaskSeqType = "AzureAD"
     RmmId = $RmmId
 }
-$ClientConfig | ConvertTo-Json | Out-File -FilePath "C:\VTAutomate\Automation\CloudDeploy\ClientConfig.json" -Encoding UTF8
+$ClientConfig | ConvertTo-Json | Out-File -FilePath "C:\VanTornhout\Automation\CloudDeploy\ClientConfig.json" -Encoding UTF8
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host ""
 
@@ -91,8 +91,8 @@ Write-Host -ForegroundColor White "X> Downloading the DefaultAppsAndOnboardScrip
 try {
     $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/002_Windows_PostOS_DefaultAppsAndOnboard.ps1" -UseBasicParsing 
     $DefaultAppsAndOnboardScript = $DefaultAppsAndOnboardResponse.content
-    Write-Host -ForegroundColor Gray  "X> Saving the Onboard script to c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
-    $DefaultAppsAndOnboardScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
+    Write-Host -ForegroundColor Gray  "X> Saving the Onboard script to c:\VanTornhout\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
+    $DefaultAppsAndOnboardScriptPath = "c:\VanTornhout\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
     $DefaultAppsAndOnboardScript | Out-File -FilePath $DefaultAppsAndOnboardScriptPath -Encoding UTF8
 }
 catch {
@@ -174,7 +174,7 @@ start "Install-Module AutopilotOOBE" /wait PowerShell -NoL -C Install-Module Aut
 start "Start-AutopilotOOBE" /wait PowerShell -NoL -C Start-AutopilotOOBE -Title 'Cloud Deploy Autopilot Reg' -GroupTag Win-Autopilot01 -Assign -AssignedComputerName "{0}"
 
 :: Start Onboarding
-start "Default apps & Onboarding" PowerShell -NoL -C "c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
+start "Default apps & Onboarding" PowerShell -NoL -C "c:\VanTornhout\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
 
 exit
 '@ -f $computername
