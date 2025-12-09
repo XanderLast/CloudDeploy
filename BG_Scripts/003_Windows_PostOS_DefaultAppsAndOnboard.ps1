@@ -3,7 +3,7 @@ Write-Host -ForegroundColor Cyan "             Default Apps and Onboard Client -
 Write-Host -ForegroundColor Cyan "========================================================================================="
 Write-Host -ForegroundColor Cyan ""
 Write-Host -ForegroundColor Gray "========================================================================================="
-Start-Transcript -Path "C:\VTAutomate\Automation\Logs\CloudDeploy_003_Windows_PostOS_DefaultAppsAndOnboard.log"
+Start-Transcript -Path "C:\VanTornhout\Automation\Logs\CloudDeploy_003_Windows_PostOS_DefaultAppsAndOnboard.log"
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host -ForegroundColor Gray "X> Setting up Powershell and Repo trusted."
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
@@ -16,15 +16,15 @@ Install-Module burnttoast
 Import-Module burnttoast
 Write-Host -ForegroundColor Gray "========================================================================================="
 write-host "X> reading the ClientConfig.json file"
-$ClientConfig = Get-Content -Path "C:\VTAutomate\Automation\CloudDeploy\ClientConfig.json" | ConvertFrom-Json
+$ClientConfig = Get-Content -Path "C:\VanTornhout\Automation\CloudDeploy\ClientConfig.json" | ConvertFrom-Json
 
 # Checking if the folders exist, if not create them
 $foldersToCheck = @(
-    "C:\VTAutomate\Automation\Logs",
-    "C:\VTAutomate\Automation\Scripts",
-    "C:\VTAutomate\Apps",
-    "C:\VTAutomate\RMM",
-    "C:\VTAutomate\RS"
+    "C:\VanTornhout\Automation\Logs",
+    "C:\VanTornhout\Automation\Scripts",
+    "C:\VanTornhout\Apps",
+    "C:\VanTornhout\RMM",
+    "C:\VanTornhout\RS"
 )
 
 foreach ($folder in $foldersToCheck) {
@@ -112,21 +112,102 @@ $Splat = @{
 }
 New-BurntToastNotification @splat 
 
-try {
+<#try {
     # Define the URL. Note: The URL is a placeholder and may need to be modified.
     $RmmUrl = "http://support.ez.be/GetAgent/Windows/?cid=$($ClientConfig.RmmId)" + '&aid=0013z00002YbbGCAAZ'
     
     # Download the RmmInstaller.msi file.
     Write-Host -ForegroundColor Gray "X> Downloading RmmInstaller.msi from $RmmUrl"
-    Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VTAutomate\RMM\RmmInstaller.msi" -ErrorAction Stop
+    Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VanTornhout\RMM\RmmInstaller.msi" -ErrorAction Stop
     
     # Start the installer silently and wait for it to complete.
     Write-Host -ForegroundColor Green "X> Download successful. Starting silent installation."
-    Start-Process -FilePath "C:\VTAutomate\RMM\RmmInstaller.msi" -ArgumentList "/qn" -Wait
+    Start-Process -FilePath "C:\VanTornhout\RMM\RmmInstaller.msi" -ArgumentList "/qn" -Wait
     Write-Host -ForegroundColor Green "X> Installation completed."
 }
 catch {
     Write-Error "X> Rmm is already installed or had an error: $($_.Exception.Message)"
+}#>
+try {
+    $installer = "C:\VanTornhout\RMM\RmmInstaller.msi"
+    $RmmUrl = "http://support.ez.be/GetAgent/Windows/?cid=$($ClientConfig.RmmId)" + '&aid=0013z00002YbbGCAAZ'
+    
+    # Ensure directory exists
+    $installerDir = Split-Path -Path $installer -Parent
+    if (!(Test-Path -Path $installerDir)) {
+        New-Item -ItemType Directory -Path $installerDir -Force | Out-Null
+    }
+    
+    Write-Host -ForegroundColor Gray "X> Downloading RmmInstaller.msi from $RmmUrl"
+    Invoke-WebRequest -Uri $RmmUrl -OutFile $installer -UseBasicParsing
+    
+    # Verify download succeeded
+    if (!(Test-Path -Path $installer)) {
+        throw "Failed to download installer"
+    }
+    
+    $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+    Write-Host -ForegroundColor Gray "X> Running as: $currentUser"
+    
+    if ($currentUser -eq 'NT AUTHORITY\SYSTEM') {
+        # Already running as SYSTEM, install directly
+        Write-Host -ForegroundColor Gray "X> Installing as SYSTEM directly"
+        $process = Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$installer`" /qn /norestart" -Wait -PassThru
+        
+        if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 3010) {
+            throw "RMM installer failed with exit code $($process.ExitCode)"
+        }
+        Write-Host -ForegroundColor Green "X> RMM installed successfully (Exit code: $($process.ExitCode))"
+    } else {
+        # Not running as SYSTEM, create scheduled task
+        Write-Host -ForegroundColor Gray "X> Creating scheduled task to run as SYSTEM"
+        $taskName = "Install_RMM_$([guid]::NewGuid())"
+        $action   = New-ScheduledTaskAction -Execute "msiexec.exe" -Argument "/i `"$installer`" /qn /norestart"
+        $trigger  = New-ScheduledTaskTrigger -Once -At (Get-Date).AddSeconds(10)
+        $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+        
+        Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -User "SYSTEM" -RunLevel Highest -Settings $settings | Out-Null
+        
+        Write-Host -ForegroundColor Gray "X> Starting scheduled task"
+        Start-ScheduledTask -TaskName $taskName
+        
+        # Wait for task to complete
+        $timeout = 300 # 5 minutes
+        $elapsed = 0
+        do {
+            Start-Sleep -Seconds 5
+            $elapsed += 5
+            $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+            $info = Get-ScheduledTaskInfo -TaskName $taskName -ErrorAction SilentlyContinue
+            
+            if ($elapsed -gt $timeout) {
+                Unregister-ScheduledTask -TaskName $taskName -Confirm:$false -ErrorAction SilentlyContinue
+                throw "Installation timed out after $timeout seconds"
+            }
+        } while ($task.State -eq 'Running' -or $info.LastRunTime -eq [datetime]::MinValue)
+        
+        # Clean up task
+        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false -ErrorAction SilentlyContinue
+        
+        # Check result (0 = success, 3010 = success but reboot required)
+        if ($info.LastTaskResult -ne 0 -and $info.LastTaskResult -ne 3010) {
+            throw "RMM installer task failed with exit code $($info.LastTaskResult)"
+        }
+        Write-Host -ForegroundColor Green "X> RMM installed successfully via scheduled task (Exit code: $($info.LastTaskResult))"
+    }
+    
+    # Cleanup installer file
+    if (Test-Path -Path $installer) {
+        Remove-Item -Path $installer -Force -ErrorAction SilentlyContinue
+    }
+}
+catch {
+    Write-Error "X> RMM installation failed: $($_.Exception.Message)"
+    # Cleanup on error
+    if (Test-Path -Path $installer) {
+        Remove-Item -Path $installer -Force -ErrorAction SilentlyContinue
+    }
+    throw
 }
 
 <#
@@ -187,8 +268,8 @@ Write-Host -ForegroundColor White "X> Office 365 Install."
 try {
     $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/001_Windows_PostOS_InstallOffice.ps1" -UseBasicParsing 
     $DefaultAppsAndOnboardScript = $DefaultAppsAndOnboardResponse.content
-    Write-Host -ForegroundColor Gray "X> Saving the script to c:\VTAutomate\Automation\CloudDeploy\Scripts\"
-    $DefaultAppsAndOnboardScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\InstallOffice365.ps1"
+    Write-Host -ForegroundColor Gray "X> Saving the script to c:\VanTornhout\Automation\CloudDeploy\Scripts\"
+    $DefaultAppsAndOnboardScriptPath = "c:\VanTornhout\Automation\CloudDeploy\Scripts\InstallOffice365.ps1"
     $DefaultAppsAndOnboardScript | Out-File -FilePath $DefaultAppsAndOnboardScriptPath -Encoding UTF8
 }
 catch {
@@ -196,7 +277,7 @@ catch {
 }
 
 # Running the Office Install script
-$scriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\InstallOffice365.ps1"
+$scriptPath = "c:\VanTornhout\Automation\CloudDeploy\Scripts\InstallOffice365.ps1"
 
 Write-Host -ForegroundColor Gray "X> Running the Office Install script."
 
@@ -435,7 +516,7 @@ try {
 Write-Host "X> 1.4.1 Posh-SSH module is already installed."
 
 # 2. Define file and directory locations
-$localDirectory = "C:\VTAutomate\"
+$localDirectory = "C:\VanTornhout\"
 $ftpRemoteDirectory = "/SupportFolderClients"
 
 
