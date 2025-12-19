@@ -12,7 +12,7 @@ Write-Host -ForegroundColor White ""
 # Ask user for the computer name and ezRmmId
 Write-Host -ForegroundColor Yellow "  Need to know the Computer name and RMM Customer ID."
 $computerName = Read-Host "  Enter the computer name"
-$ezRmmId = Read-Host "  Enter the RMM Customer ID"
+$RmmId = Read-Host "  Enter the RMM Customer ID"
 Write-Host -ForegroundColor White ""
 
 Write-Host -ForegroundColor White "========================================================================================="
@@ -78,7 +78,7 @@ Write-Host -ForegroundColor Gray "==============================================
 Write-Host -ForegroundColor White "X> Creating a json config file with the ezRmmId"
 $ClientConfig = @{
     TaskSeqType = "LocalAD"
-    ezRmmId = $ezRmmId
+    RmmId = $RmmId
 }
 $ClientConfig | ConvertTo-Json | Out-File -FilePath "C:\VanTornhout\Automation\CloudDeploy\ClientConfig.json" -Encoding UTF8
 Write-Host -ForegroundColor Gray "========================================================================================="
