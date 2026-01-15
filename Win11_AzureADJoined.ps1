@@ -32,7 +32,7 @@ Import-Module OSD -Force
 
 $Params = @{
     OSVersion = "Windows 11"
-    OSBuild = "25H2"
+    OSBuild = "24H2"
     OSEdition = "Pro"
     OSLanguage = "en-us"
     OSLicense = "Retail"
@@ -134,8 +134,8 @@ $OobeXml = @"
 </FirstExperience>
 "@
 
-Write-Host -ForegroundColor White  "X> Writing the OOBE.xml file to c:\Windows\System32\Oobe\Info\Oobe.xml"
-$OobeXMLPath = "c:\Windows\System32\Oobe\Info\Oobe.xml"
+Write-Host -ForegroundColor White  "X> Writing the VTAUT.xml file to c:\Windows\System32\Oobe\Info\VTAUT.xml"
+$OobeXMLPath = "c:\Windows\System32\Oobe\Info\VTAUT.xml"
 try {
     $OobeXml | Out-File -FilePath $OobeXMLPath -Encoding UTF8
     
@@ -240,7 +240,7 @@ This script prompts the user to input the computer name and ez RMM ID.
 002_TaskSequence_AzureAD.ps1 -ComputerName "CUST-SITE-DTxx" -ezRmmId 123456789
 
 This command configures a Windows 11 version x Pro image with Azure AD on a computer named "MyComputer01" and installs the ez RMM tool, 
-It loads an OOBE.XML for region and KBD settings and removes the default apps CommunicationsApps, OfficeHub, People, Skype, Solitaire, Xbox, ZuneMusic, and ZuneVideo.
+It loads an VTAUT.xml for region and KBD settings and removes the default apps CommunicationsApps, OfficeHub, People, Skype, Solitaire, Xbox, ZuneMusic, and ZuneVideo.
 Then sets up OOBE ezOnboard.cmd which you can launch doing Shift + F10 at the OOBE screen.
 
 .NOTES

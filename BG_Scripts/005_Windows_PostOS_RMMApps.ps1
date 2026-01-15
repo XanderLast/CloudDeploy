@@ -3,7 +3,7 @@ Write-Host -ForegroundColor Cyan "             RMM Apps and Onboard - Post OS De
 Write-Host -ForegroundColor Cyan "========================================================================================="
 Write-Host -ForegroundColor Cyan ""
 Write-Host -ForegroundColor Gray "========================================================================================="
-Start-Transcript -Path "C:\VTAutomate\Automation\Logs\CloudDeploy_005_Windows_PostOS_RMMApps.log"
+Start-Transcript -Path "C:\VanTornhout\Automation\Logs\CloudDeploy_005_Windows_PostOS_RMMApps.log"
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host -ForegroundColor Gray "Z> Installing Modules."
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
@@ -20,16 +20,16 @@ Install-Module burnttoast
 Import-Module burnttoast
 Write-Host -ForegroundColor Gray "========================================================================================="
 write-host "Z> reading the ClientConfig.json file"
-$ClientConfig = Get-Content -Path "C:\VTAutomate\Automation\CloudDeploy\ClientConfig.json" | ConvertFrom-Json
+$ClientConfig = Get-Content -Path "C:\VanTornhout\Automation\CloudDeploy\ClientConfig.json" | ConvertFrom-Json
 
 # Checking if the folders exist, if not create them
 $foldersToCheck = @(
-    "C:\VTAutomate\Automation\Logs",
-    "C:\VTAutomate\Automation\Scripts",
-    "C:\VTAutomate\Apps",
-    "C:\VTAutomate\RMM",
-    "C:\VTAutomate\RS",
-    "C:\VTAutomate\Rmon"
+    "C:\VanTornhout\Automation\Logs",
+    "C:\VanTornhout\Automation\Scripts",
+    "C:\VanTornhout\Apps",
+    "C:\VanTornhout\RMM",
+    "C:\VanTornhout\RS",
+    "C:\VanTornhout\Rmon"
 )
 
 foreach ($folder in $foldersToCheck) {
@@ -89,8 +89,8 @@ write-host -ForegroundColor White "Z> RMM - Downloading and installing it for cu
 try {
     $RmmUrl = "http://support.ez.be/GetAgent/Windows/?cid=$($ClientConfig.RmmId)" + '&aid=0013z00002YbbGCAAZ'
     Write-Host -ForegroundColor Gray "Z> Downloading RmmInstaller.msi from $RmmUrl"
-    Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VTAutomate\RMM\RmmInstaller.msi"
-    Start-Process -FilePath "C:\VTAutomate\RMM\RmmInstaller.msi" -ArgumentList "/quiet" -Wait
+    Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VanTornhout\RMM\RmmInstaller.msi"
+    Start-Process -FilePath "C:\VanTornhout\RMM\RmmInstaller.msi" -ArgumentList "/quiet" -Wait
     
 }
 catch {
@@ -142,8 +142,8 @@ Write-Host -ForegroundColor Gray " Z> Downloading and shortcutting the JoinDomai
 try {
     $JoinDomainAtFirstLoginResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/004_Windows_PostOOBE_JoinDomainAtFirstLogin.ps1" -UseBasicParsing 
     $JoinDomainAtFirstLoginScript = $JoinDomainAtFirstLoginResponse.content
-    Write-Host -ForegroundColor Gray " Z> Saving the AD Join script to c:\VTAutomate\Automation\CloudDeploy\Scripts"
-    $JoinDomainAtFirstLoginScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\JoinDomainAtFirstLogin.ps1"
+    Write-Host -ForegroundColor Gray " Z> Saving the AD Join script to c:\VanTornhout\Automation\CloudDeploy\Scripts"
+    $JoinDomainAtFirstLoginScriptPath = "c:\VanTornhout\Automation\CloudDeploy\Scripts\JoinDomainAtFirstLogin.ps1"
     $JoinDomainAtFirstLoginScript | Out-File -FilePath $JoinDomainAtFirstLoginScriptPath -Encoding UTF8
     }
 catch {

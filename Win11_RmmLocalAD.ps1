@@ -46,7 +46,7 @@ Start-OSDCloud @Params
 
 Write-Host -ForegroundColor Gray "========================================================================================="
 # Start transcript
-$transcriptPath = "c:\VTAutomate\Automation\Logs\CloudDeploy_TaskSequence_RMM.log"
+$transcriptPath = "c:\VanTornhout\Automation\Logs\CloudDeploy_TaskSequence_RMM.log"
 Start-Transcript -Path $transcriptPath
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host ""
@@ -59,7 +59,7 @@ Write-Host -ForegroundColor Cyan ""
 Write-Host -ForegroundColor Gray "========================================================================================="
 
 Write-Host -ForegroundColor White "Z> Let's check if the folders exist, if not create them"
-$folders = "c:\Windows\System32\Oobe\Info", "c:\windows\System32\Oobe\Info\Default", "c:\VTAutomate\Automation\eCloudDeploy\AutoUnattend", "c:\VTAutomate\Automation\Logs", "c:\VTAutomate\Automation\CloudDeploy\Scripts", "C:\ProgramData\OSDeploy"
+$folders = "c:\Windows\System32\Oobe\Info", "c:\windows\System32\Oobe\Info\Default", "c:\VanTornhout\Automation\CloudDeploy\AutoUnattend", "c:\VanTornhout\Automation\Logs", "c:\VanTornhout\Automation\CloudDeploy\Scripts", "C:\ProgramData\OSDeploy"
 foreach ($folder in $folders) {
     if (!(Test-Path $folder)) {
         try {
@@ -80,7 +80,7 @@ $ClientConfig = @{
     TaskSeqType = "Workgroup"
     RmmId = $RmmId
 }
-$ClientConfig | ConvertTo-Json | Out-File -FilePath "C:\VTAutomate\Automation\CloudDeploy\ClientConfig.json" -Encoding UTF8
+$ClientConfig | ConvertTo-Json | Out-File -FilePath "C:\VanTornhout\Automation\CloudDeploy\ClientConfig.json" -Encoding UTF8
 Write-Host -ForegroundColor Gray "========================================================================================="
 # Put our autoUnattend xml template for Local AD OOBE in a variable
 Write-Host -ForegroundColor White "Z> Updating our Unattend xml for Workgroup OOBE (no online useraccount page)"
@@ -140,7 +140,7 @@ $unattendXml = @"
                 <SynchronousCommand wcm:action="add">
                     <Description>Default Apps And Onboard</Description>
                     <Order>1</Order>
-                    <CommandLine>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File c:\VTAutomate\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1</CommandLine>
+                    <CommandLine>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File c:\VanTornhout\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1</CommandLine>
                     <RequiresUserInput>true</RequiresUserInput>
                 </SynchronousCommand>
             </FirstLogonCommands>
@@ -150,10 +150,10 @@ $unattendXml = @"
 </unattend>
 "@
 
-# Write the updated unattend.xml file to c:\VTAutomate\Automation\CloudDeploy\AutoUnattend\
-Write-Host -ForegroundColor White "Z> Writing the unattend.xml file to c:\VTAutomate\Automation\CloudDeploy\AutoUnattend\"
+# Write the updated unattend.xml file to c:\VanTornhout\Automation\CloudDeploy\AutoUnattend\
+Write-Host -ForegroundColor White "Z> Writing the unattend.xml file to c:\VanTornhout\Automation\CloudDeploy\AutoUnattend\"
 write-host -ForegroundColor Gray "$unattendXml"
-$unattendPath = "C:\VTAutomate\Automation\CloudDeploy\AutoUnattend\LocalAdUnattend.xml"
+$unattendPath = "C:\VanTornhout\Automation\CloudDeploy\AutoUnattend\LocalAdUnattend.xml"
 try {
     $unattendXml | Out-File -FilePath $unattendPath -Encoding UTF8
     
@@ -168,8 +168,8 @@ Write-Host -ForegroundColor Gray "Z> Downloading the DefaultAppsAndOnboardScript
 try {
     $DefaultAppsAndOnboardResponse = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/XanderLast/CloudDeploy/master/BG_Scripts/005_Windows_PostOS_RMMApps.ps1" -UseBasicParsing 
     $DefaultAppsAndOnboardScript = $DefaultAppsAndOnboardResponse.content
-    Write-Host -ForegroundColor Gray "Z> Saving the Onboard script to c:\VTAutomate\Automation\CloudDeploy\Scripts\005_Windows_PostOS_RMMApps.ps1"
-    $DefaultAppsAndOnboardScriptPath = "c:\VTAutomate\Automation\CloudDeploy\Scripts\005_Windows_PostOS_RMMApps.ps1"
+    Write-Host -ForegroundColor Gray "Z> Saving the Onboard script to c:\VanTornhout\Automation\CloudDeploy\Scripts\005_Windows_PostOS_RMMApps.ps1"
+    $DefaultAppsAndOnboardScriptPath = "c:\VanTornhout\Automation\CloudDeploy\Scripts\005_Windows_PostOS_RMMApps.ps1"
     $DefaultAppsAndOnboardScript | Out-File -FilePath $DefaultAppsAndOnboardScriptPath -Encoding UTF8
 }
 catch {
