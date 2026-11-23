@@ -16,8 +16,11 @@ Array with apps you do NOT want to install
 .NOTES
 Author: Jurgen Verhelst | ez Networking (jurgen.verhelst@ez.be) 
 Edited by : Xander Last | Van Tornhout IT | vt.be 
-Version: 0.7
-Last Updated: 19/2/23
+Version: 0.8
+Last Updated: 18/11/26
+Changes 0.8: Consumer/OEM Click-to-Run Office wordt verwijderd voor de install,
+             detectie gebruikt nu ClickToRun ProductReleaseIds,
+             typo in Generate-XMLFile gefixt.
 
 #> 
 <# 
@@ -49,7 +52,7 @@ Write-Host -ForegroundColor Cyan "             Install Office 365 - Post OS Depl
 Write-Host -ForegroundColor Cyan "========================================================================================="
 Write-Host -ForegroundColor Cyan ""
 Function Generate-XMLFile{
-  Write-Host = " X says: Generating an XML file"
+  Write-Host " X says: Generating an XML file"
   If($ExcludeApps){
     $ExcludeApps | ForEach-Object{
       $ExcludeAppsString += "<ExcludeApp ID =`"$_`" />"
@@ -171,7 +174,7 @@ Function Get-ODTURL {
 }:Enter a comment or description}
 #>
 
-## Check ezNetworkingdirs OK zijn
+## Check dirs OK zijn
 If(-Not(Test-Path -path "c:\VanTornhout\Automation\Logs")){New-Item -path "c:\VanTornhout\Automation\Logs"  -ItemType Directory -ErrorAction Stop | Out-Null}
 If(-Not(Test-Path $OfficeInstallDownloadPath )){New-Item -Path $OfficeInstallDownloadPath  -ItemType Directory -ErrorAction Stop | Out-Null}
 
@@ -241,18 +244,20 @@ Try{
   return
 }
 
-#Check if Office 365 suite was installed correctly.
-
-$RegLocations = @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall',
-                  'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall'
-                 )
+# Verify install using ClickToRun ProductReleaseIds
 
 $OfficeInstalled = $False
-Foreach ($Key in (Get-ChildItem $RegLocations) ) {
-  If($Key.GetValue("DisplayName") -like "*Office 16*") {
-    $OfficeVersionInstalled = $Key.GetValue("DisplayName")
-    $OfficeInstalled = $True
-  }
+$OfficeVersionInstalled = ""
+
+$c2rConfigAfter = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration" -ErrorAction SilentlyContinue
+
+if ($c2rConfigAfter -and $c2rConfigAfter.ProductReleaseIds) {
+    foreach ($allowedSku in $AllowedSkus) {
+        if ($c2rConfigAfter.ProductReleaseIds -like "*$allowedSku*") {
+            $OfficeInstalled = $True
+            $OfficeVersionInstalled = $allowedSku
+        }
+    }
 }
 
 If($OfficeInstalled){
