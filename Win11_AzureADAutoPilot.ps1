@@ -145,17 +145,15 @@ catch {
 
 Write-Host -ForegroundColor Gray "========================================================================================="
 Write-Host -ForegroundColor White "X> Creating shortcuts to the CloudDeploy OOBE and AutoPilot scripts"
+
 $SetCommand = @'
 @echo off
 
 :: ============================================================
-:: Cloud Deploy - Windows OOBE Automation
+:: Set PowerShell configuration
 :: ============================================================
 
-
-:: Set the PowerShell Execution Policy
 PowerShell.exe -NoLogo -NoProfile -Command "Set-ExecutionPolicy RemoteSigned -Force"
-
 
 :: Add PowerShell Scripts folder to PATH for this CMD session
 set "PATH=%PATH%;C:\Program Files\WindowsPowerShell\Scripts"
@@ -204,13 +202,33 @@ start "Install Get-WindowsAutopilotInfo" /wait PowerShell.exe -NoLogo -NoProfile
 :: Computer Name: {0}
 :: Group Tag: Win-Autopilot01
 :: ============================================================
-echo Press any key to start Intune Enrollment...
 
+echo.
+echo ============================================================
+echo Ready to start Intune Enrollment
+echo Computer Name: {0}
+echo ============================================================
+echo.
+echo Press any key to start Intune Enrollment...
 pause >nul
 
 if not exist "C:\VanTornhout\Automation\Logs" mkdir "C:\VanTornhout\Automation\Logs"
 
-start "AutoPilot Onboarding" /wait PowerShell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Start-Transcript -Path 'C:\VanTornhout\Automation\Logs\AutopilotOnboarding.log' -Append; try { & 'C:\Program Files\WindowsPowerShell\Scripts\Get-WindowsAutopilotInfo.ps1' -Online -AssignedComputerName '{0}' -GroupTag 'Win-Autopilot01' -Assign -Verbose } finally { Stop-Transcript }"
+start "AutoPilot Onboarding" /wait PowerShell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Start-Transcript -Path 'C:\VanTornhout\Automation\Logs\AutopilotOnboarding.log' -Append; try {{ & 'C:\Program Files\WindowsPowerShell\Scripts\Get-WindowsAutopilotInfo.ps1' -Online -AssignedComputerName '{0}' -GroupTag 'Win-Autopilot01' -Assign -Verbose }} finally {{ Stop-Transcript }}"
+
+
+:: ============================================================
+:: Autopilot Enrollment Finished
+:: ============================================================
+
+echo.
+echo ============================================================
+echo Autopilot Enrollment process finished
+echo Log file:
+echo C:\VanTornhout\Automation\Logs\AutopilotOnboarding.log
+echo ============================================================
+echo.
+
 
 :: ============================================================
 :: Start Default Apps and Onboarding
@@ -218,9 +236,11 @@ start "AutoPilot Onboarding" /wait PowerShell.exe -NoLogo -NoProfile -ExecutionP
 
 start "Default Apps & Onboarding" PowerShell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "C:\VanTornhout\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
 
-
 exit
+
 '@ -f $computername
+
+
 $SetCommand
 $SetCommand | Out-File -FilePath "C:\Windows\System32\AutomateOOBE.cmd" -Encoding ascii -Force
 Write-Host -ForegroundColor Gray "========================================================================================="

@@ -11,9 +11,9 @@ Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 Write-Host -ForegroundColor Gray "X> Installing OSD Module."
 Install-Module OSD -Force -Verbose
 Import-Module OSD -Force
-Write-Host -ForegroundColor Gray "X> Installing Burned Toast Module."
-Install-Module burnttoast
-Import-Module burnttoast
+#Write-Host -ForegroundColor Gray "X> Installing Burned Toast Module."
+#Install-Module burnttoast
+#Import-Module burnttoast
 Write-Host -ForegroundColor Gray "========================================================================================="
 write-host "X> reading the ClientConfig.json file"
 $ClientConfig = Get-Content -Path "C:\VanTornhout\Automation\CloudDeploy\ClientConfig.json" | ConvertFrom-Json
@@ -55,7 +55,7 @@ else {
     Write-Host -ForegroundColor Gray "X> Focus Assist set to Off"
 }
 
-# Send the toast notification
+<# Send the toast notification
 $Time = Get-date -Format t
 $Btn = New-BTButton -Content 'OK' -arguments 'ok'
 $Splat = @{
@@ -65,8 +65,7 @@ $Splat = @{
     Button = $Btn
     HeroImage = 'https://iili.io/HU77iLN.jpg'
 }
-New-BurntToastNotification @splat 
-
+New-BurntToastNotification @splat  #>
 
 Write-Host -ForegroundColor Cyan "========================================================================================="
 write-host -ForegroundColor Cyan "X> User configuration"
@@ -493,15 +492,14 @@ try {
 }
 
 
-
+<#
 $Time = Get-date -Format t
 $Splat = @{
     Text = 'X> Default apps script finished' , "Installed Choco, RMM, Office 365 $Time"
     Applogo = 'https://iili.io/H8B8JtI.png'
     Sound = 'IM'
 }
-New-BurntToastNotification @splat 
-
+New-BurntToastNotification @splat #>
 Write-host ""
 Write-Host -ForegroundColor Cyan "========================================================================================="
 write-host -ForegroundColor Cyan "X> Installing client Finished." 
