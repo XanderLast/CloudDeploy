@@ -148,38 +148,77 @@ Write-Host -ForegroundColor White "X> Creating shortcuts to the CloudDeploy OOBE
 $SetCommand = @'
 @echo off
 
+:: ============================================================
+:: Cloud Deploy - Windows OOBE Automation
+:: ============================================================
+
+
 :: Set the PowerShell Execution Policy
-PowerShell -NoL -Com Set-ExecutionPolicy RemoteSigned -Force
-
-:: Add PowerShell Scripts to the Path
-set path=%path%;C:\Program Files\WindowsPowerShell\Scripts
-
-:: Open and Minimize a PowerShell instance just in case
-start PowerShell -NoL -W Mi
-
-:: Set regional settings
-start "Set Regional Settings" /wait PowerShell -NoL -C Set-WinSystemLocale nl-BE
-start "Set User Language List" /wait PowerShell -NoL -C Set-WinUserLanguageList nl-BE -Force
-start "Set Default Input Method" /wait PowerShell -NoL -C Set-WinDefaultInputMethodOverride -InputTip '0813:00000813'
-start "Set Time Zone" /wait PowerShell -NoL -C Set-TimeZone -Id 'Romance Standard Time'
-start "Set Regional Formatting" /wait PowerShell -NoL -C Set-Culture -CultureInfo "en-BE"
-start "Set Location" /wait PowerShell -NoL -C Set-WinHomeLocation -GeoId 20
+PowerShell.exe -NoLogo -NoProfile -Command "Set-ExecutionPolicy RemoteSigned -Force"
 
 
-:: Install the latest OSD and AutopilotOOBE Modules
-start "Install-Module OSD" /wait PowerShell -NoL -C Install-Module OSD -Force -Verbose
-start "Install-Module AutopilotOOBE" /wait PowerShell -NoL -C Install-Module AutopilotOOBE -Force -Verbose
+:: Add PowerShell Scripts folder to PATH for this CMD session
+set "PATH=%PATH%;C:\Program Files\WindowsPowerShell\Scripts"
 
-:: Start-AutopilotOOBE
-start "Start-AutopilotOOBE" /wait PowerShell -NoL -C Start-AutopilotOOBE -Title 'Cloud Deploy Autopilot Reg' -GroupTag Win-Autopilot01 -Assign -AssignedComputerName "{0}"
 
-:: Start Onboarding
-start "Default apps & Onboarding" PowerShell -NoL -C "c:\VanTornhout\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
+:: ============================================================
+:: Set Regional Settings
+:: ============================================================
+
+start "Set Regional Settings" /wait PowerShell.exe -NoLogo -NoProfile -Command "Set-WinSystemLocale -SystemLocale 'nl-BE'"
+
+start "Set User Language List" /wait PowerShell.exe -NoLogo -NoProfile -Command "Set-WinUserLanguageList -LanguageList 'nl-BE' -Force"
+
+start "Set Default Input Method" /wait PowerShell.exe -NoLogo -NoProfile -Command "Set-WinDefaultInputMethodOverride -InputTip '0813:00000813'"
+
+start "Set Time Zone" /wait PowerShell.exe -NoLogo -NoProfile -Command "Set-TimeZone -Id 'Romance Standard Time'"
+
+start "Set Regional Formatting" /wait PowerShell.exe -NoLogo -NoProfile -Command "Set-Culture -CultureInfo 'en-BE'"
+
+start "Set Location" /wait PowerShell.exe -NoLogo -NoProfile -Command "Set-WinHomeLocation -GeoId 20"
+
+
+:: ============================================================
+:: Prepare PowerShell Gallery
+:: ============================================================
+
+start "Prepare PowerShell Gallery" /wait PowerShell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Install-PackageProvider -Name NuGet -Force; Set-PSRepository -Name PSGallery -InstallationPolicy Trusted"
+
+
+:: ============================================================
+:: Install OSD Module
+:: ============================================================
+
+start "Install OSD Module" /wait PowerShell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Install-Module -Name OSD -Force -AllowClobber -Verbose"
+
+
+:: ============================================================
+:: Install Get-WindowsAutopilotInfo
+:: ============================================================
+
+start "Install Get-WindowsAutopilotInfo" /wait PowerShell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Install-Script -Name Get-WindowsAutopilotInfo -Force -Verbose"
+
+
+:: ============================================================
+:: Register Device with Windows Autopilot
+:: Computer Name: {0}
+:: Group Tag: Win-Autopilot01
+:: ============================================================
+
+start "AutoPilot Onboarding" /wait PowerShell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& 'C:\Program Files\WindowsPowerShell\Scripts\Get-WindowsAutopilotInfo.ps1' -Online -GroupTag 'Win-Autopilot01' -Assign -AssignedComputerName '{0}' -Verbose"
+
+
+:: ============================================================
+:: Start Default Apps and Onboarding
+:: ============================================================
+
+start "Default Apps & Onboarding" PowerShell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "C:\VanTornhout\Automation\CloudDeploy\Scripts\DefaultAppsAndOnboard.ps1"
+
 
 exit
 '@ -f $computername
 $SetCommand
-$SetCommand | Out-File -FilePath "C:\Windows\system32\AutomateOOBE.cmd" -Encoding ascii -Force 
+$SetCommand | Out-File -FilePath "C:\Windows\System32\AutomateOOBE.cmd" -Encoding ascii -Force
 Write-Host -ForegroundColor Gray "========================================================================================="
 
 #And stop the transcript.

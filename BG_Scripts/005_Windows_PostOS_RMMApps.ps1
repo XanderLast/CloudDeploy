@@ -87,7 +87,7 @@ write-host -ForegroundColor White "Z> RMM - Downloading and installing it for cu
 
 
 try {
-    $RmmUrl = "http://support.ez.be/GetAgent/Windows/?cid=$($ClientConfig.RmmId)" + '&aid=0013z00002YbbGCAAZ' #https://vantornhout.servicedesk.atera.com/api/utils/agent-install/windows/?cid=14&aeid=15d77512578646e193cce5f29e9eda68
+    $RmmUrl = "https://vantornhout.servicedesk.atera.com/api/utils/agent-install/windows/?cid=$($ClientConfig.RmmId)" + '&aeid=15d77512578646e193cce5f29e9eda68' #https://vantornhout.servicedesk.atera.com/api/utils/agent-install/windows/?cid=14&aeid=15d77512578646e193cce5f29e9eda68
     Write-Host -ForegroundColor Gray "Z> Downloading RmmInstaller.msi from $RmmUrl"
     Invoke-WebRequest -Uri $RmmUrl -OutFile "C:\VanTornhout\RMM\RmmInstaller.msi"
     Start-Process -FilePath "C:\VanTornhout\RMM\RmmInstaller.msi" -ArgumentList "/quiet" -Wait

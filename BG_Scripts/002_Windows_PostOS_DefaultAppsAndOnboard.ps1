@@ -124,7 +124,7 @@ catch {
 }#>
 try {
     $installer = "C:\VanTornhout\RMM\RmmInstaller.msi"
-    $RmmUrl = "https://vantornhout.servicedesk.atera.com/GetAgent/Windows/?cid=$($ClientConfig.RmmId)" + '&aid=001Q300000Yd8uzIAB' 
+    $RmmUrl = "https://vantornhout.servicedesk.atera.com/api/utils/agent-install/windows/?cid=$($ClientConfig.RmmId)" + '&aeid=15d77512578646e193cce5f29e9eda68'
     
     # Ensure directory exists
     $installerDir = Split-Path -Path $installer -Parent
