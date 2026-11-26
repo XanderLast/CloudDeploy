@@ -204,8 +204,9 @@ start "Install Get-WindowsAutopilotInfo" /wait PowerShell.exe -NoLogo -NoProfile
 :: Computer Name: {0}
 :: Group Tag: Win-Autopilot01
 :: ============================================================
-
-start "AutoPilot Onboarding" /wait PowerShell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& 'C:\Program Files\WindowsPowerShell\Scripts\Get-WindowsAutopilotInfo.ps1' -Online -GroupTag 'Win-Autopilot01' -Assign -AssignedComputerName '{0}' -Verbose"
+echo Press any key to start Intune Enrollment...
+pause >nul
+start "AutoPilot Onboarding" /wait PowerShell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& 'C:\Program Files\WindowsPowerShell\Scripts\Get-WindowsAutopilotInfo.ps1' -Online -GroupTag 'Win-Autopilot01' -Assign  -Verbose"
 
 
 :: ============================================================
